@@ -32,7 +32,7 @@ public class SamlPluginConfig {
     private int maximumAuthenticationLifetime;
     private String emailAttributeName;
 
-    private final String idpMetadata;
+    private final IdpMetadata idpMetadata;
     private final String usernameCaseConversion;
     private final String usernameAttributeName;
     private final String logoutUrl;
@@ -41,14 +41,14 @@ public class SamlPluginConfig {
     private SamlAdvancedConfiguration advancedConfiguration;
 
     public SamlPluginConfig(String displayNameAttributeName, String groupsAttributeName,
-                            int maximumAuthenticationLifetime, String emailAttributeName, String idpMetadata,
+                            int maximumAuthenticationLifetime, String emailAttributeName, IdpMetadata idpMetadata,
                             String usernameCaseConversion, String usernameAttributeName, String logoutUrl,
                             SamlEncryptionData encryptionData, SamlAdvancedConfiguration advancedConfiguration) {
         this.displayNameAttributeName = displayNameAttributeName;
         this.groupsAttributeName = groupsAttributeName;
         this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
         this.emailAttributeName = emailAttributeName;
-        this.idpMetadata = hudson.Util.fixEmptyAndTrim(idpMetadata);
+        this.idpMetadata = idpMetadata;
         this.usernameCaseConversion = StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
         this.logoutUrl = logoutUrl;
@@ -56,9 +56,9 @@ public class SamlPluginConfig {
         this.advancedConfiguration = advancedConfiguration;
     }
 
-    public String getIdpMetadata() {
-        return idpMetadata;
-    }
+    //public String getIdpMetadata() {
+    //    return idpMetadata;
+    //}
 
     public String getUsernameAttributeName() {
         return usernameAttributeName;
@@ -120,7 +120,7 @@ public class SamlPluginConfig {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlPluginConfig{");
-        sb.append("idpMetadata='").append(getIdpMetadata()).append('\'');
+       // sb.append("idpMetadata='").append(getIdpMetadata()).append('\'');
         sb.append(", displayNameAttributeName='").append(getDisplayNameAttributeName()).append('\'');
         sb.append(", groupsAttributeName='").append(getGroupsAttributeName()).append('\'');
         sb.append(", emailAttributeName='").append(getEmailAttributeName()).append('\'');

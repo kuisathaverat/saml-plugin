@@ -17,8 +17,11 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import hudson.Extension;
 import hudson.Util;
 
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -26,7 +29,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * Simple immutable data class to hold the optional advanced configuration data section
  * of the plugin's configuration page
  */
-public class SamlAdvancedConfiguration {
+public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvancedConfiguration> {
     private final Boolean forceAuthn;
     private final String authnContextClassRef;
     private final String spEntityId;
@@ -65,5 +68,21 @@ public class SamlAdvancedConfiguration {
         sb.append(", maximumSessionLifetime=").append(getMaximumSessionLifetime() != null ? getMaximumSessionLifetime() : "none");
         sb.append('}');
         return sb.toString();
+    }
+
+    @Extension
+    public static final class DescriptorImpl extends Descriptor<SamlAdvancedConfiguration> {
+        public DescriptorImpl() {
+            super();
+        }
+
+        public DescriptorImpl(Class<? extends SamlAdvancedConfiguration> clazz) {
+            super(clazz);
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Advanced Configuration";
+        }
     }
 }

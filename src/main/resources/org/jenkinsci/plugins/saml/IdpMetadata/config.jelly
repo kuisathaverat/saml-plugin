@@ -1,0 +1,21 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:block>
+    <f:radioBlock name="idpMetadataConfiguration" value="true" title="Idp Metadata XML" checked="${instance.idpMetadataConfiguration.isInline()}" >
+      <f:entry title="IdP Metadata" field="xml" help="/plugin/saml/help/metadata.html">
+        <f:textarea value="${instance.idpMetadataConfiguration.xml}"/>
+      </f:entry>
+      <f:validateButton title="Validate IdP Metadata" progress="Validate..." method="testIdpMetadata" with="xml" />
+    </f:radioBlock>
+
+    <f:radioBlock name="idpMetadataConfiguration" value="false" title="Idp Metadata Source URL" checked="${!instance.idpMetadataConfiguration.isInline()}" >
+      <f:entry title="IdP Metadata URL" field="url" help="/plugin/saml/help/metadataURL.html">
+        <f:textbox value="${instance.idpMetadataConfiguration.url}"/>
+      </f:entry>
+      <f:entry title="Refresh Period" field="period" help="/plugin/saml/help/metadataPeriod.html">
+        <f:number clazz="required number" min="0" default="0 " value="${instance.idpMetadataConfiguration.period != null ? instance.idpMetadataConfiguration.period : 0}"/>
+      </f:entry>
+      <f:validateButton title="Validate IdP Metadata URL" progress="Validate..." method="testIdpMetadataURL" with="url" />
+    </f:radioBlock>
+  </f:block>
+</j:jelly>

@@ -17,7 +17,10 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import hudson.Extension;
 import hudson.Util;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
 import hudson.util.Secret;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -30,7 +33,7 @@ import org.apache.commons.lang.StringUtils;
  * Simple immutable data class to hold the optional encryption data section
  * of the plugin's configuration page
  */
-public class SamlEncryptionData {
+public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionData> {
     private final String keystorePath;
     @Deprecated
     private transient String keystorePassword;
@@ -95,4 +98,19 @@ public class SamlEncryptionData {
         return this;
     }
 
+    @Extension
+    public static final class DescriptorImpl extends Descriptor<SamlEncryptionData> {
+        public DescriptorImpl() {
+            super();
+        }
+
+        public DescriptorImpl(Class<? extends SamlEncryptionData> clazz) {
+            super(clazz);
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Encryption Configuration";
+        }
+    }
 }
