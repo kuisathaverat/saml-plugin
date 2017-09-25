@@ -18,7 +18,6 @@ under the License. */
 package org.jenkinsci.plugins.saml;
 
 import hudson.Extension;
-import hudson.model.PeriodicWork;
 import hudson.security.GroupDetails;
 import hudson.security.UserMayOrMayNotExistException;
 import hudson.util.FormValidation;
@@ -173,6 +172,13 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.encryptionData = encryptionData;
 
         FileUtils.writeStringToFile(new File(getIDPMetadataFilePath()), idpMetadataConfiguration.getXml());
+        Jenkins j = Jenkins.getInstance();
+        UpdateMetadataFromURLPeriodicWork d = j.getInstance()
+                .getExtensionList(hudson.model.PeriodicWork.class).get(UpdateMetadataFromURLPeriodicWork.class);
+        j.getInstance().getExtensionList(hudson.model.PeriodicWork.class).remove(d);
+
+        new UpdateMetadataFromURLPeriodicWork();
+
         LOG.finer(this.toString());
     }
 

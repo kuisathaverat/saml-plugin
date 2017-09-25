@@ -160,7 +160,7 @@ public class SamlSecurityRealmTest {
                 samlSecurityRealm.getGroupsAttributeName(),
                 samlSecurityRealm.getMaximumAuthenticationLifetime(),
                 samlSecurityRealm.getEmailAttributeName(),
-                samlSecurityRealm.getIdpMetadata(),
+                samlSecurityRealm.getIdpMetadataConfiguration(),
                 samlSecurityRealm.getUsernameCaseConversion(),
                 samlSecurityRealm.getUsernameAttributeName(),
                 samlSecurityRealm.getLogoutUrl(),

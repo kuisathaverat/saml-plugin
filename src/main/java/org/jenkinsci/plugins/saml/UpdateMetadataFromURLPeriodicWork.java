@@ -16,13 +16,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Extension
-public class UpdateMetadataFromURL extends PeriodicWork {
-    private static final Logger LOG = Logger.getLogger(UpdateMetadataFromURL.class.getName());
+public class UpdateMetadataFromURLPeriodicWork extends PeriodicWork {
+    private static final Logger LOG = Logger.getLogger(UpdateMetadataFromURLPeriodicWork.class.getName());
 
 
     @Override
     public long getRecurrencePeriod() {
-        long ret = 0;
+        long ret = 30000;
         jenkins.model.Jenkins j = jenkins.model.Jenkins.getInstance();
         if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
