@@ -172,13 +172,6 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.encryptionData = encryptionData;
 
         FileUtils.writeStringToFile(new File(getIDPMetadataFilePath()), idpMetadataConfiguration.getXml());
-        Jenkins j = Jenkins.getInstance();
-        UpdateMetadataFromURLPeriodicWork d = j.getInstance()
-                .getExtensionList(hudson.model.PeriodicWork.class).get(UpdateMetadataFromURLPeriodicWork.class);
-        j.getInstance().getExtensionList(hudson.model.PeriodicWork.class).remove(d);
-
-        new UpdateMetadataFromURLPeriodicWork();
-
         LOG.finer(this.toString());
     }
 
