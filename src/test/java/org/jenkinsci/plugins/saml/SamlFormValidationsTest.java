@@ -58,9 +58,11 @@ public class SamlFormValidationsTest {
         assertEquals(descriptor.doTestIdpMetadata(null).kind, Kind.ERROR);
         assertEquals(descriptor.doTestIdpMetadata("").kind, Kind.ERROR);
         assertEquals(descriptor.doTestIdpMetadata(" ").kind, Kind.ERROR);
-        assertEquals(descriptor.doTestIdpMetadata(samlSecurityRealm.getIdpMetadata() + "</none>").kind, Kind.ERROR);
-        assertEquals(descriptor.doTestIdpMetadata(samlSecurityRealm.getIdpMetadata().substring(20)).kind, Kind.ERROR);
-        assertEquals(descriptor.doTestIdpMetadata(samlSecurityRealm.getIdpMetadata()).kind, Kind.OK);
+        SamlPluginConfig samlPluginConfig = samlSecurityRealm.getSamlPluginConfig();
+        String idpMetadata = samlPluginConfig.getIdpMetadataConfiguration().getIdpMetadata();
+        assertEquals(descriptor.doTestIdpMetadata(idpMetadata + "</none>").kind, Kind.ERROR);
+        assertEquals(descriptor.doTestIdpMetadata(idpMetadata.substring(20)).kind, Kind.ERROR);
+        assertEquals(descriptor.doTestIdpMetadata(idpMetadata).kind, Kind.OK);
     }
 
     @LocalData("testReadSimpleConfigurationAdvancedConfiguration")

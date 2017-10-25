@@ -3,7 +3,7 @@
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <f:section title="SAML Identity Provider Settings">
 
-        <st:include class="org.jenkinsci.plugins.saml.IdpMetadata" page="config.jelly"/>
+        <st:include class="org.jenkinsci.plugins.saml.IdpMetadataConfiguration" page="config.jelly"/>
 
         <f:entry title="Display Name Attribute" field="displayNameAttributeName"
                  help="/plugin/saml/help/displayNameAttributeName.html">

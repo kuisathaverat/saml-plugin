@@ -119,13 +119,13 @@ public class SamlSecurityRealm extends SecurityRealm {
     @Deprecated
     private transient String idpMetadata;
 
-    private IdpMetadata idpMetadataConfiguration;
+    private IdpMetadataConfiguration idpMetadataConfigurationConfiguration;
 
     /**
      * Jenkins passes these parameters in when you update the settings.
      * It does this because of the @DataBoundConstructor
      *
-     * @param idpMetadataConfiguration      How to obtains the IdP Metadata configuration.
+     * @param idpMetadataConfigurationConfiguration      How to obtains the IdP Metadata configuration.
      * @param displayNameAttributeName      attribute that has the displayname
      * @param groupsAttributeName           attribute that has the groups
      * @param maximumAuthenticationLifetime maximum time that an identification it is valid
@@ -138,7 +138,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     @DataBoundConstructor
     public SamlSecurityRealm(
-            IdpMetadata idpMetadataConfiguration,
+            IdpMetadataConfiguration idpMetadataConfigurationConfiguration,
             String displayNameAttributeName,
             String groupsAttributeName,
             Integer maximumAuthenticationLifetime,
@@ -149,7 +149,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             SamlEncryptionData encryptionData,
             String usernameCaseConversion) throws IOException {
         super();
-        this.idpMetadataConfiguration = idpMetadataConfiguration;
+        this.idpMetadataConfigurationConfiguration = idpMetadataConfigurationConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
         this.usernameCaseConversion = org.apache.commons.lang.StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
@@ -171,24 +171,23 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.advancedConfiguration = advancedConfiguration;
         this.encryptionData = encryptionData;
 
-        FileUtils.writeStringToFile(new File(getIDPMetadataFilePath()), idpMetadataConfiguration.getXml());
+        idpMetadataConfigurationConfiguration.createIdPMetadataFile();
         LOG.finer(this.toString());
     }
 
     // migration code for the new IdP metadata file
     public Object readResolve() {
-        if(idpMetadataConfiguration==null){
-            idpMetadataConfiguration = new IdpMetadata(idpMetadata);
+        if(idpMetadataConfigurationConfiguration == null){
+            idpMetadataConfigurationConfiguration = new IdpMetadataConfiguration(idpMetadata);
         }
 
         File idpMetadataFile = new File(getIDPMetadataFilePath());
         if (!idpMetadataFile.exists()){
-            if (idpMetadataConfiguration != null && idpMetadataConfiguration.getXml() != null){
-                String xml = idpMetadataConfiguration.getXml();
+            if (idpMetadataConfigurationConfiguration != null && idpMetadataConfigurationConfiguration.getXml() != null){
                 try {
-                    FileUtils.writeStringToFile(new File(getIDPMetadataFilePath()), xml);
+                    idpMetadataConfigurationConfiguration.createIdPMetadataFile();
                 } catch (IOException e) {
-                    LOG.log(Level.SEVERE, "Can not write IdP metadata file in JENKINS_HOME", e);
+                    LOG.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
         }
@@ -288,10 +287,10 @@ public class SamlSecurityRealm extends SecurityRealm {
         SamlUserDetails userDetails = new SamlUserDetails(username, authorities.toArray(new GrantedAuthority[authorities.size()]));
         // set session expiration, if needed.
 
-        if (getMaximumSessionLifetime() != null) {
+        if (getAdvancedConfiguration() != null && getAdvancedConfiguration().getMaximumSessionLifetime() != null) {
             request.getSession().setAttribute(
                     EXPIRATION_ATTRIBUTE,
-                    System.currentTimeMillis() + 1000 * getMaximumSessionLifetime()
+                    System.currentTimeMillis() + 1000 * getAdvancedConfiguration().getMaximumSessionLifetime()
             );
         }
 
@@ -531,7 +530,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     public SamlPluginConfig getSamlPluginConfig() {
         SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
-                maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfiguration, usernameCaseConversion,
+                maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfigurationConfiguration, usernameCaseConversion,
                 usernameAttributeName, logoutUrl, encryptionData, advancedConfiguration);
         return samlPluginConfig;
     }
@@ -779,10 +778,6 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
     }
 
-    public String getIdpMetadata() {
-        return idpMetadata;
-    }
-
     public String getUsernameAttributeName() {
         return usernameAttributeName;
     }
@@ -803,6 +798,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         return advancedConfiguration;
     }
 
+    /*
     public Boolean getForceAuthn() {
         return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getForceAuthn() : Boolean.FALSE;
     }
@@ -818,10 +814,13 @@ public class SamlSecurityRealm extends SecurityRealm {
     public Integer getMaximumSessionLifetime() {
         return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getMaximumSessionLifetime() : null;
     }
+    */
 
     public SamlEncryptionData getEncryptionData() {
         return encryptionData;
     }
+
+    /*
 
     // TODO this is an antipattern; cf. config.jelly
     public String getKeystorePath() {
@@ -839,6 +838,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     public String getPrivateKeyAlias() {
         return getEncryptionData() != null ? getEncryptionData().getPrivateKeyAlias() : null;
     }
+    */
 
     public String getUsernameCaseConversion() {
         return usernameCaseConversion;
@@ -852,8 +852,8 @@ public class SamlSecurityRealm extends SecurityRealm {
         return logoutUrl;
     }
 
-    public IdpMetadata getIdpMetadataConfiguration() {
-        return idpMetadataConfiguration;
+    public IdpMetadataConfiguration getIdpMetadataConfigurationConfiguration() {
+        return idpMetadataConfigurationConfiguration;
     }
 
     @Override

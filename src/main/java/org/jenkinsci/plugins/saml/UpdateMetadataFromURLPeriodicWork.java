@@ -17,14 +17,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * <p>This periodic work update the IdP Metadata File, the periodicof the execution is defined on the SAML Plugin configuration.</p>
+ * <p>If the Preriod is set to 0 the Periodic work is mostly disabled, it will check the changes on config
+ * every 10 minutes to see if it is enabled again, if the period change it is re-enabled again.</p>
+ */
 @Extension
 public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
     private static final Logger LOG = Logger.getLogger(UpdateMetadataFromURLPeriodicWork.class.getName());
 
+    /**
+     * {@inheritDoc}
+     */
     public UpdateMetadataFromURLPeriodicWork() {
-        super("UpdateMetadataFromURLPeriodicWork");
+        super("Update IdP Metadata from URL PeriodicWork");
     }
 
+    /**
+     * @return the configured period, if the configured period is 0 return 10 minutes.
+     */
     @Override
     public long getRecurrencePeriod() {
         long ret = getConfiguredPeriod();
@@ -34,44 +45,47 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
         return ret;
     }
 
+    /**
+     * @return check the configured period in the SAML Plugin configuration.
+     */
     private long getConfiguredPeriod() {
         long ret = 0;
         jenkins.model.Jenkins j = jenkins.model.Jenkins.getInstance();
         if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
-            ret = TimeUnit.SECONDS.toMillis(samlSecurityRealm.getIdpMetadataConfiguration().getPeriod());
+            ret = TimeUnit.MINUTES.toMillis(samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getPeriod());
         }
         return ret;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public hudson.model.AperiodicWork getNewInstance() {
         return new UpdateMetadataFromURLPeriodicWork();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>Connect to the URL configured on the SAML configuration to get the IdP Metadata, then download it </p>
+     * <p>if the period configured is 0 it returns directly, do nothing.</p>
+     */
     @Override
     protected void execute(hudson.model.TaskListener listener) throws IOException, InterruptedException {
-        Jenkins j = Jenkins.getInstance();
         if (getConfiguredPeriod() == 0) {
             return;
         }
 
-        SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
-        String url = samlSecurityRealm.getIdpMetadataConfiguration().getUrl();
-
-        try {
-            URLConnection urlConnection = new URL(url).openConnection();
-            try (InputStream in = urlConnection.getInputStream()) {
-                String xml = IOUtils.toString(in, StringUtils.defaultIfEmpty(urlConnection.getContentEncoding(), "UTF-8"));
-                hudson.util.FormValidation validation = new org.jenkinsci.plugins.saml.SamlValidateIdPMetadata(xml).get();
-                if (Kind.OK == validation.kind) {
-                    FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml);
-                } else {
-                    LOG.log(Level.SEVERE, validation.getMessage());
-                }
+        Jenkins j = Jenkins.getInstance();
+        if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
+            SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
+            try {
+                samlSecurityRealm.getIdpMetadataConfigurationConfiguration().updateIdPMetadata();
+            } catch (IOException | IllegalArgumentException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
             }
-        } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Was not possible to update the IdP Metadata from the URL " + url, e);
         }
     }
 }

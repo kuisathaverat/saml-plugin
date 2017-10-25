@@ -32,17 +32,13 @@ import org.jvnet.hudson.test.recipes.LocalData;
 import org.mockito.Mockito;
 
 import javax.servlet.http.HttpSession;
-import static org.hamcrest.Matchers.*;
 
-import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.hamcrest.text.IsEmptyString.emptyString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import org.jvnet.hudson.test.Issue;
@@ -160,7 +156,7 @@ public class SamlSecurityRealmTest {
                 samlSecurityRealm.getGroupsAttributeName(),
                 samlSecurityRealm.getMaximumAuthenticationLifetime(),
                 samlSecurityRealm.getEmailAttributeName(),
-                samlSecurityRealm.getIdpMetadataConfiguration(),
+                samlSecurityRealm.getIdpMetadataConfigurationConfiguration(),
                 samlSecurityRealm.getUsernameCaseConversion(),
                 samlSecurityRealm.getUsernameAttributeName(),
                 samlSecurityRealm.getLogoutUrl(),
