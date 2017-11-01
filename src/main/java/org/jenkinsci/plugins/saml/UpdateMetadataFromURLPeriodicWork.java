@@ -2,17 +2,9 @@ package org.jenkinsci.plugins.saml;
 
 import hudson.Extension;
 import hudson.model.AsyncAperiodicWork;
-import hudson.util.FormValidation.Kind;
 import jenkins.model.Jenkins;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +17,7 @@ import java.util.logging.Logger;
 @Extension
 public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
     private static final Logger LOG = Logger.getLogger(UpdateMetadataFromURLPeriodicWork.class.getName());
+    private boolean scheduleedOnce;
 
     /**
      * {@inheritDoc}
@@ -34,14 +27,18 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
     }
 
     /**
-     * @return the configured period, if the configured period is 0 return 10 minutes.
+     * @return the configured period, if the configured period is 0 return 10 minutes,
+     * if we are starting the Jenkins instance schedule an execution after 10 seconds.
      */
     @Override
     public long getRecurrencePeriod() {
         long ret = getConfiguredPeriod();
         if (ret == 0) {
             ret = TimeUnit.MINUTES.toMillis(10);
+        } else if (!scheduleedOnce){
+            ret = 10000;
         }
+        scheduleedOnce = true;
         return ret;
     }
 

@@ -7,9 +7,18 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -29,7 +38,7 @@ public class IdpMetadataConfiguration {
      */
     private String url;
     /**
-     * Period between each IdP Metadata update.
+     * Period in minutes between each IdP Metadata update.
      */
     private Long period;
 
@@ -37,7 +46,7 @@ public class IdpMetadataConfiguration {
      * Jelly Constructor.
      * @param xml Idp Metadata XML. if xml is null, url and period should not.
      * @param url Url to download the IdP Metadata.
-     * @param period Period between updates of the IdP Metadata.
+     * @param period Period in minutes between updates of the IdP Metadata.
      */
     @DataBoundConstructor
     public IdpMetadataConfiguration(String xml, String url, Long period) {
@@ -113,7 +122,13 @@ public class IdpMetadataConfiguration {
         try {
             URLConnection urlConnection = new URL(url).openConnection();
             try (InputStream in = urlConnection.getInputStream()) {
-                String xml = IOUtils.toString(in, StringUtils.defaultIfEmpty(urlConnection.getContentEncoding(), "UTF-8"));
+                TransformerFactory tf = TransformerFactory.newInstance();
+                Transformer transformer = tf.newTransformer();
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                StringWriter writer = new StringWriter();
+                transformer.transform(new StreamSource(in), new StreamResult(writer));
+                String xml = writer.toString();
                 FormValidation validation = new SamlValidateIdPMetadata(xml).get();
                 if (FormValidation.Kind.OK == validation.kind) {
                     FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml);
@@ -121,7 +136,7 @@ public class IdpMetadataConfiguration {
                     throw new IllegalArgumentException(validation.getMessage());
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | TransformerException e) {
             throw new IOException("Was not possible to update the IdP Metadata from the URL " + url, e);
         }
     }
