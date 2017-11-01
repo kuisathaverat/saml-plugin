@@ -124,7 +124,7 @@ public class IdpMetadataConfiguration {
             try (InputStream in = urlConnection.getInputStream()) {
                 TransformerFactory tf = TransformerFactory.newInstance();
                 Transformer transformer = tf.newTransformer();
-                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 StringWriter writer = new StringWriter();
                 transformer.transform(new StreamSource(in), new StreamResult(writer));
