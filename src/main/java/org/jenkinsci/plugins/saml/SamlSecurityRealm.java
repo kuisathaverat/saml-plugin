@@ -31,7 +31,6 @@ import jenkins.security.SecurityListener;
 import org.acegisecurity.*;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.*;
@@ -51,11 +50,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.apache.commons.codec.binary.Base64.*;
+import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 /**
  * Authenticates the user via SAML.
@@ -112,6 +113,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     private final String usernameCaseConversion;
     private final String usernameAttributeName;
     private final String logoutUrl;
+    private String binding;
 
     private SamlEncryptionData encryptionData;
     private SamlAdvancedConfiguration advancedConfiguration;
@@ -123,7 +125,7 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     /**
      * Jenkins passes these parameters in when you update the settings.
-     * It does this because of the @DataBoundConstructor
+     * It does this because of the @DataBoundConstructor.
      *
      * @param idpMetadataConfigurationConfiguration      How to obtains the IdP Metadata configuration.
      * @param displayNameAttributeName      attribute that has the displayname
@@ -135,6 +137,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param advancedConfiguration         advanced configuration settings
      * @param encryptionData                encryption configuration settings
      * @param usernameCaseConversion        username case sensitive settings
+     * @param binding                       SAML binding method.
      */
     @DataBoundConstructor
     public SamlSecurityRealm(
@@ -147,7 +150,8 @@ public class SamlSecurityRealm extends SecurityRealm {
             String logoutUrl,
             SamlAdvancedConfiguration advancedConfiguration,
             SamlEncryptionData encryptionData,
-            String usernameCaseConversion) throws IOException {
+            String usernameCaseConversion,
+            String binding) throws IOException {
         super();
         this.idpMetadataConfigurationConfiguration = idpMetadataConfigurationConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
@@ -170,6 +174,7 @@ public class SamlSecurityRealm extends SecurityRealm {
         }
         this.advancedConfiguration = advancedConfiguration;
         this.encryptionData = encryptionData;
+        this.binding = binding;
 
         idpMetadataConfigurationConfiguration.createIdPMetadataFile();
         LOG.finer(this.toString());
@@ -192,23 +197,13 @@ public class SamlSecurityRealm extends SecurityRealm {
             }
         }
 
+        if(StringUtils.isEmpty(getBinding())){
+            binding = SAML2_REDIRECT_BINDING_URI;
+        }
+
         return this;
     }
-/*
-    public SamlSecurityRealm(
-            String idpMetadata,
-            String displayNameAttributeName,
-            String groupsAttributeName,
-            Integer maximumAuthenticationLifetime,
-            String usernameAttributeName,
-            String emailAttributeName,
-            String logoutUrl,
-            SamlAdvancedConfiguration advancedConfiguration,
-            SamlEncryptionData encryptionData) throws IOException {
-        this("inline", idpMetadata, null, null, displayNameAttributeName, groupsAttributeName, maximumAuthenticationLifetime,
-                usernameAttributeName, emailAttributeName, logoutUrl, advancedConfiguration, encryptionData, "none");
-    }
-*/
+
     @Override
     public boolean allowsSignup() {
         return false;
@@ -267,13 +262,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
-        if(LOG.isLoggable(Level.FINEST)){
-            try {
-                LOG.finest("SAMLResponse XML:" + new String(Base64.getDecoder().decode(request.getParameter("SAMLResponse")),"UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                LOG.finest("No UTF-8 SAMLResponse XML");
-            }
-        }
+        logSamlResponse(request);
         boolean saveUser = false;
 
         SAML2Profile saml2Profile = new SamlProfileWrapper(getSamlPluginConfig(), request, response).get();
@@ -322,6 +311,30 @@ public class SamlSecurityRealm extends SecurityRealm {
         String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
         String redirectUrl = referer != null ? referer : baseUrl();
         return HttpResponses.redirectTo(redirectUrl);
+    }
+
+    /**
+     * Tries to log the content of the SAMLResponse even it is not valid.
+     * @param request Request received in doFinishLogin, it should be a SAMLResponse.
+     */
+    private void logSamlResponse(StaplerRequest request) {
+        if(LOG.isLoggable(Level.FINEST)){
+            try {
+                String samlResponse = request.getParameter("SAMLResponse");
+                if(isBase64(samlResponse)) {
+                    LOG.finest("SAMLResponse XML:" + new String(decodeBase64(samlResponse), request.getCharacterEncoding()));
+                } else {
+                    LOG.finest("SAMLResponse XML:" + samlResponse);
+                }
+            } catch (Exception e) {
+                LOG.finest("No UTF-8 SAMLResponse XML");
+                try(InputStream in = request.getInputStream()) {
+                    LOG.finest(IOUtils.toString(in, request.getCharacterEncoding()));
+                } catch (IOException e1) {
+                    LOG.finest("Was not possible to read the request");
+                }
+            }
+        }
     }
 
     private String baseUrl() {
@@ -531,7 +544,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     public SamlPluginConfig getSamlPluginConfig() {
         SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
                 maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfigurationConfiguration, usernameCaseConversion,
-                usernameAttributeName, logoutUrl, encryptionData, advancedConfiguration);
+                usernameAttributeName, logoutUrl, binding, encryptionData, advancedConfiguration);
         return samlPluginConfig;
     }
 
@@ -798,47 +811,13 @@ public class SamlSecurityRealm extends SecurityRealm {
         return advancedConfiguration;
     }
 
-    /*
-    public Boolean getForceAuthn() {
-        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getForceAuthn() : Boolean.FALSE;
+    public String getBinding() {
+        return binding;
     }
-
-    public String getAuthnContextClassRef() {
-        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getAuthnContextClassRef() : null;
-    }
-
-    public String getSpEntityId() {
-        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getSpEntityId() : null;
-    }
-
-    public Integer getMaximumSessionLifetime() {
-        return getAdvancedConfiguration() != null ? getAdvancedConfiguration().getMaximumSessionLifetime() : null;
-    }
-    */
 
     public SamlEncryptionData getEncryptionData() {
         return encryptionData;
     }
-
-    /*
-
-    // TODO this is an antipattern; cf. config.jelly
-    public String getKeystorePath() {
-        return getEncryptionData() != null ? getEncryptionData().getKeystorePath() : null;
-    }
-
-    public Secret getKeystorePassword() {
-        return getEncryptionData() != null ? getEncryptionData().getKeystorePassword() : null;
-    }
-
-    public Secret getPrivateKeyPassword() {
-        return getEncryptionData() != null ? getEncryptionData().getPrivateKeyPassword() : null;
-    }
-
-    public String getPrivateKeyAlias() {
-        return getEncryptionData() != null ? getEncryptionData().getPrivateKeyAlias() : null;
-    }
-    */
 
     public String getUsernameCaseConversion() {
         return usernameCaseConversion;

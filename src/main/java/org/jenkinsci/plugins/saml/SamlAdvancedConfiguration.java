@@ -36,7 +36,10 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     private final Integer maximumSessionLifetime;
 
     @DataBoundConstructor
-    public SamlAdvancedConfiguration(Boolean forceAuthn, String authnContextClassRef, String spEntityId, Integer maximumSessionLifetime) {
+    public SamlAdvancedConfiguration(Boolean forceAuthn,
+                                     String authnContextClassRef,
+                                     String spEntityId,
+                                     Integer maximumSessionLifetime) {
         this.forceAuthn = (forceAuthn != null) ? forceAuthn : false;
         this.authnContextClassRef = Util.fixEmptyAndTrim(authnContextClassRef);
         this.spEntityId = Util.fixEmptyAndTrim(spEntityId);
@@ -58,6 +61,7 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
     public Integer getMaximumSessionLifetime() {
         return maximumSessionLifetime;
     }
+
 
     @Override
     public String toString() {

@@ -95,7 +95,7 @@ public abstract class OpenSAMLWrapper<T> {
     protected SAML2Client createSAML2Client() {
         final SAML2ClientConfiguration config = new SAML2ClientConfiguration();
         config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
-        config.setDestinationBindingType(SAML2_REDIRECT_BINDING_URI);
+        config.setDestinationBindingType(samlPluginConfig.getBinding());
 
         if (samlPluginConfig.getEncryptionData() != null) {
             config.setWantsAssertionsSigned(true);

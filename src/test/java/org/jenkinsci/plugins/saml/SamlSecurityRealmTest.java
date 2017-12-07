@@ -34,6 +34,9 @@ import org.mockito.Mockito;
 import javax.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
@@ -43,6 +46,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import org.jvnet.hudson.test.Issue;
 import static org.mockito.Mockito.when;
+import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_POST_BINDING_URI;
+import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
 
 /**
@@ -62,6 +67,13 @@ public class SamlSecurityRealmTest {
         } else {
             throw new RuntimeException("The security Realm it is not correct");
         }
+
+        Logger logger = Logger.getLogger("org.jenkinsci.plugins.saml");
+        logger.setLevel(Level.FINEST);
+        LogManager.getLogManager().addLogger(logger);
+        Logger logger1 = Logger.getLogger("org.pac4j");
+        logger1.setLevel(Level.FINEST);
+        LogManager.getLogManager().addLogger(logger1);
     }
 
     @LocalData
@@ -74,6 +86,20 @@ public class SamlSecurityRealmTest {
         assertEquals("urn:mace:dir:attribute-def:mail", samlSecurityRealm.getEmailAttributeName());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
         assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(SAML2_REDIRECT_BINDING_URI, samlSecurityRealm.getBinding());
+    }
+
+    @LocalData
+    @Test
+    public void testReadSimpleConfigurationHTTPPost() throws IOException {
+        assertEquals("urn:mace:dir:attribute-def:displayName", samlSecurityRealm.getDisplayNameAttributeName());
+        assertEquals("urn:mace:dir:attribute-def:groups", samlSecurityRealm.getGroupsAttributeName());
+        assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
+        assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
+        assertEquals("urn:mace:dir:attribute-def:mail", samlSecurityRealm.getEmailAttributeName());
+        assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
+        assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(SAML2_POST_BINDING_URI, samlSecurityRealm.getBinding());
     }
 
     @LocalData
@@ -85,6 +111,7 @@ public class SamlSecurityRealmTest {
         assertEquals("lowercase", samlSecurityRealm.getUsernameCaseConversion());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
         assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(SAML2_REDIRECT_BINDING_URI, samlSecurityRealm.getBinding());
     }
 
     @LocalData
@@ -96,6 +123,7 @@ public class SamlSecurityRealmTest {
         assertEquals("uppercase", samlSecurityRealm.getUsernameCaseConversion());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
         assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(SAML2_REDIRECT_BINDING_URI, samlSecurityRealm.getBinding());
     }
 
     @Issue("JENKINS-46007")
@@ -111,6 +139,7 @@ public class SamlSecurityRealmTest {
         assertEquals("/home/jdk/keystore", samlSecurityRealm.getEncryptionData().getKeystorePath());
         assertEquals(Secret.fromString("changeitks"), samlSecurityRealm.getEncryptionData().getKeystorePassword());
         assertEquals(Secret.fromString("changeitpk"), samlSecurityRealm.getEncryptionData().getPrivateKeyPassword());
+        assertEquals(SAML2_REDIRECT_BINDING_URI, samlSecurityRealm.getBinding());
         jenkinsRule.jenkins.setAuthorizationStrategy(AuthorizationStrategy.UNSECURED); // since we cannot actually log in during the test
         jenkinsRule.submit(jenkinsRule.createWebClient().goTo("configureSecurity").getFormByName("config"));
         samlSecurityRealm = (SamlSecurityRealm) jenkinsRule.jenkins.getSecurityRealm();
@@ -135,6 +164,7 @@ public class SamlSecurityRealmTest {
         assertEquals("anotherContext", samlSecurityRealm.getAdvancedConfiguration().getAuthnContextClassRef());
         assertEquals("spEntityId", samlSecurityRealm.getAdvancedConfiguration().getSpEntityId());
         assertEquals(86400, samlSecurityRealm.getAdvancedConfiguration().getMaximumSessionLifetime().longValue());
+        assertEquals(SAML2_REDIRECT_BINDING_URI, samlSecurityRealm.getBinding());
     }
 
     @LocalData("testHugeNumberOfUsers")
@@ -160,6 +190,7 @@ public class SamlSecurityRealmTest {
                 samlSecurityRealm.getUsernameCaseConversion(),
                 samlSecurityRealm.getUsernameAttributeName(),
                 samlSecurityRealm.getLogoutUrl(),
+                samlSecurityRealm.getBinding(),
                 samlSecurityRealm.getEncryptionData(),
                 samlSecurityRealm.getAdvancedConfiguration());
         assertEquals(samlPluginConfig.toString().equals(samlSecurityRealm.getSamlPluginConfig().toString()), true);
@@ -211,5 +242,7 @@ public class SamlSecurityRealmTest {
         configuredMetadata = configuredMetadata.replace("\\n", ""); // remove new lines
         assertThat(idpMetadata, equalTo(configuredMetadata));
     }
+
+
 
 }
