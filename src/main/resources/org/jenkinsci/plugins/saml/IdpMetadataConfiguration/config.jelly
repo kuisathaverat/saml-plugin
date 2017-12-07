@@ -1,13 +1,13 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <f:block>
-      <f:radioBlock name="idpMetadataConfigurationConfiguration" value="true" title="Idp Metadata XML" checked="${instance.idpMetadataConfigurationConfiguration.isInline()}"  >
+      <f:radioBlock name="idpMetadataConfigurationConfiguration" value="true" title="Idp Metadata XML" checked="false"  >
         <f:entry title="IdP Metadata" field="xml" help="/plugin/saml/help/metadata.html">
           <f:textarea value="${instance.idpMetadataConfigurationConfiguration.xml}"/>
         </f:entry>
         <f:validateButton title="Validate IdP Metadata" progress="Validate..." method="testIdpMetadata" with="xml" />
       </f:radioBlock>
-      <f:radioBlock name="idpMetadataConfigurationConfiguration" value="false" title="Idp Metadata Source URL" checked="${!instance.idpMetadataConfigurationConfiguration.isInline()}" >
+      <f:radioBlock name="idpMetadataConfigurationConfiguration" value="false" title="Idp Metadata Source URL" checked="false" >
         <f:entry title="IdP Metadata URL" field="url" help="/plugin/saml/help/metadataURL.html">
           <f:textbox value="${instance.idpMetadataConfigurationConfiguration.url}"/>
         </f:entry>

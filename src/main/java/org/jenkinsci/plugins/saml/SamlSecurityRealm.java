@@ -138,6 +138,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param encryptionData                encryption configuration settings
      * @param usernameCaseConversion        username case sensitive settings
      * @param binding                       SAML binding method.
+     * @throws IOException if it is not possible to write the IdP metadata file.
      */
     @DataBoundConstructor
     public SamlSecurityRealm(

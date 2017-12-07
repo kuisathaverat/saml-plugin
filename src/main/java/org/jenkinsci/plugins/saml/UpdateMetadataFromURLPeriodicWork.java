@@ -65,7 +65,6 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
 
     /**
      * {@inheritDoc}
-     * <p>
      * <p>Connect to the URL configured on the SAML configuration to get the IdP Metadata, then download it </p>
      * <p>if the period configured is 0 it returns directly, do nothing.</p>
      */
