@@ -1,5 +1,8 @@
 package org.jenkinsci.plugins.saml;
 
+import hudson.Extension;
+import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -27,7 +30,7 @@ import java.util.logging.Level;
 /**
  * Class to store the info about how to manage the IdP Metadata.
  */
-public class IdpMetadataConfiguration {
+public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadataConfiguration> {
     /**
      * IdP Metadata on XML format, it implies there is not automatic updates.
      */
@@ -152,5 +155,21 @@ public class IdpMetadataConfiguration {
         sb.append(", period=").append(period);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Extension
+    public static final class DescriptorImpl extends Descriptor<IdpMetadataConfiguration> {
+        public DescriptorImpl() {
+            super();
+        }
+
+        public DescriptorImpl(Class<? extends IdpMetadataConfiguration> clazz) {
+            super(clazz);
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "Idp Metadata";
+        }
     }
 }

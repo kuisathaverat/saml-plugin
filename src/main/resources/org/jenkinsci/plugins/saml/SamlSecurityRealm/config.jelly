@@ -2,9 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <f:section title="SAML Identity Provider Settings">
-
-        <st:include class="org.jenkinsci.plugins.saml.IdpMetadataConfiguration" page="config.jelly"/>
-
+        <st:include page="/org/jenkinsci/plugins/saml/IdpMetadataConfiguration/config.jelly" />
         <f:entry title="Display Name Attribute" field="displayNameAttributeName"
                  help="/plugin/saml/help/displayNameAttributeName.html">
             <f:textbox default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"/>
