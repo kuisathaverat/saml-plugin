@@ -89,10 +89,6 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         return period;
     }
 
-    public boolean isInline() {
-        return xml != null;
-    }
-
     /**
      * @return Return the Idp Metadata from the XML file JENKINS_HOME/saml-idp.metadata.xml.
      * @throws IOException in case it can not read the IdP Metadata file.
@@ -107,7 +103,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
      */
     public void createIdPMetadataFile() throws IOException {
         try {
-            if (isInline()) {
+            if (xml != null) {
                 FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml);
             } else {
                 updateIdPMetadata();
@@ -169,7 +165,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
 
         @Override
         public String getDisplayName() {
-            return "Idp Metadata";
+            return "";
         }
     }
 }

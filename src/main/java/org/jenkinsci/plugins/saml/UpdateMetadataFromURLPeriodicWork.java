@@ -50,7 +50,10 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
         jenkins.model.Jenkins j = jenkins.model.Jenkins.getInstance();
         if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
-            ret = TimeUnit.MINUTES.toMillis(samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getPeriod());
+            IdpMetadataConfiguration config = samlSecurityRealm.getIdpMetadataConfiguration();
+            if(config != null && config.getPeriod() != null) {
+                ret = TimeUnit.MINUTES.toMillis(config.getPeriod());
+            }
         }
         return ret;
     }
@@ -78,7 +81,7 @@ public class UpdateMetadataFromURLPeriodicWork extends AsyncAperiodicWork {
         if (j.getSecurityRealm() instanceof SamlSecurityRealm) {
             SamlSecurityRealm samlSecurityRealm = (SamlSecurityRealm) j.getSecurityRealm();
             try {
-                samlSecurityRealm.getIdpMetadataConfigurationConfiguration().updateIdPMetadata();
+                samlSecurityRealm.getIdpMetadataConfiguration().updateIdPMetadata();
             } catch (IOException | IllegalArgumentException e) {
                 LOG.log(Level.SEVERE, e.getMessage(), e);
             }

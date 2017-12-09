@@ -121,13 +121,13 @@ public class SamlSecurityRealm extends SecurityRealm {
     @Deprecated
     private transient String idpMetadata;
 
-    private IdpMetadataConfiguration idpMetadataConfigurationConfiguration;
+    private IdpMetadataConfiguration idpMetadataConfiguration;
 
     /**
      * Jenkins passes these parameters in when you update the settings.
      * It does this because of the @DataBoundConstructor.
      *
-     * @param idpMetadataConfigurationConfiguration      How to obtains the IdP Metadata configuration.
+     * @param idpMetadataConfiguration      How to obtains the IdP Metadata configuration.
      * @param displayNameAttributeName      attribute that has the displayname
      * @param groupsAttributeName           attribute that has the groups
      * @param maximumAuthenticationLifetime maximum time that an identification it is valid
@@ -142,7 +142,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     @DataBoundConstructor
     public SamlSecurityRealm(
-            IdpMetadataConfiguration idpMetadataConfigurationConfiguration,
+            IdpMetadataConfiguration idpMetadataConfiguration,
             String displayNameAttributeName,
             String groupsAttributeName,
             Integer maximumAuthenticationLifetime,
@@ -154,7 +154,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             String usernameCaseConversion,
             String binding) throws IOException {
         super();
-        this.idpMetadataConfigurationConfiguration = idpMetadataConfigurationConfiguration;
+        this.idpMetadataConfiguration = idpMetadataConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
         this.usernameCaseConversion = org.apache.commons.lang.StringUtils.defaultIfBlank(usernameCaseConversion, DEFAULT_USERNAME_CASE_CONVERSION);
         this.logoutUrl = hudson.Util.fixEmptyAndTrim(logoutUrl);
@@ -177,21 +177,21 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.encryptionData = encryptionData;
         this.binding = binding;
 
-        idpMetadataConfigurationConfiguration.createIdPMetadataFile();
+        this.idpMetadataConfiguration.createIdPMetadataFile();
         LOG.finer(this.toString());
     }
 
     // migration code for the new IdP metadata file
     public Object readResolve() {
-        if(idpMetadataConfigurationConfiguration == null){
-            idpMetadataConfigurationConfiguration = new IdpMetadataConfiguration(idpMetadata);
+        if(idpMetadataConfiguration == null){
+            idpMetadataConfiguration = new IdpMetadataConfiguration(idpMetadata);
         }
 
         File idpMetadataFile = new File(getIDPMetadataFilePath());
         if (!idpMetadataFile.exists()){
-            if (idpMetadataConfigurationConfiguration != null && idpMetadataConfigurationConfiguration.getXml() != null){
+            if (idpMetadataConfiguration != null && idpMetadataConfiguration.getXml() != null){
                 try {
-                    idpMetadataConfigurationConfiguration.createIdPMetadataFile();
+                    idpMetadataConfiguration.createIdPMetadataFile();
                 } catch (IOException e) {
                     LOG.log(Level.SEVERE, e.getMessage(), e);
                 }
@@ -544,7 +544,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      */
     public SamlPluginConfig getSamlPluginConfig() {
         SamlPluginConfig samlPluginConfig = new SamlPluginConfig(displayNameAttributeName, groupsAttributeName,
-                maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfigurationConfiguration, usernameCaseConversion,
+                maximumAuthenticationLifetime, emailAttributeName, idpMetadataConfiguration, usernameCaseConversion,
                 usernameAttributeName, logoutUrl, binding, encryptionData, advancedConfiguration);
         return samlPluginConfig;
     }
@@ -583,6 +583,48 @@ public class SamlSecurityRealm extends SecurityRealm {
             }
 
             return new SamlValidateIdPMetadata(xml).get();
+        }
+
+        public FormValidation doCheckPeriod(@QueryParameter("period") String period) {
+            if (StringUtils.isEmpty(period)) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+            long i = 0;
+            try {
+                i = Long.parseLong(period);
+            } catch (NumberFormatException e) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
+            }
+
+            if (i < 0) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            if (i > Integer.MAX_VALUE) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckXml(@QueryParameter("xml") String xml) {
+            if (StringUtils.isBlank(xml)) {
+                return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckUrl(@QueryParameter("url") String url) {
+            if (StringUtils.isEmpty(url)) {
+                return FormValidation.ok();
+            }
+            try {
+                new URL(url);
+            } catch (MalformedURLException e) {
+                return FormValidation.error(ERROR_MALFORMED_URL, e);
+            }
+            return FormValidation.ok();
         }
 
         public FormValidation doCheckDisplayNameAttributeName(@QueryParameter String displayNameAttributeName) {
@@ -832,8 +874,8 @@ public class SamlSecurityRealm extends SecurityRealm {
         return logoutUrl;
     }
 
-    public IdpMetadataConfiguration getIdpMetadataConfigurationConfiguration() {
-        return idpMetadataConfigurationConfiguration;
+    public IdpMetadataConfiguration getIdpMetadataConfiguration() {
+        return idpMetadataConfiguration;
     }
 
     @Override

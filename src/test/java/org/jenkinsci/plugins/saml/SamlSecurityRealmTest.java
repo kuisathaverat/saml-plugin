@@ -85,7 +85,7 @@ public class SamlSecurityRealmTest {
         assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
         assertEquals("urn:mace:dir:attribute-def:mail", samlSecurityRealm.getEmailAttributeName());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-        assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(true, samlSecurityRealm.getIdpMetadataConfiguration().getIdpMetadata().startsWith("<?xml version"));
         assertEquals(SAML2_REDIRECT_BINDING_URI, samlSecurityRealm.getBinding());
     }
 
@@ -98,7 +98,7 @@ public class SamlSecurityRealmTest {
         assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
         assertEquals("urn:mace:dir:attribute-def:mail", samlSecurityRealm.getEmailAttributeName());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-        assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(true, samlSecurityRealm.getIdpMetadataConfiguration().getIdpMetadata().startsWith("<?xml version"));
         assertEquals(SAML2_POST_BINDING_URI, samlSecurityRealm.getBinding());
     }
 
@@ -110,7 +110,7 @@ public class SamlSecurityRealmTest {
         assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
         assertEquals("lowercase", samlSecurityRealm.getUsernameCaseConversion());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-        assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(true, samlSecurityRealm.getIdpMetadataConfiguration().getIdpMetadata().startsWith("<?xml version"));
         assertEquals(SAML2_REDIRECT_BINDING_URI, samlSecurityRealm.getBinding());
     }
 
@@ -122,7 +122,7 @@ public class SamlSecurityRealmTest {
         assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
         assertEquals("uppercase", samlSecurityRealm.getUsernameCaseConversion());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-        assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(true, samlSecurityRealm.getIdpMetadataConfiguration().getIdpMetadata().startsWith("<?xml version"));
         assertEquals(SAML2_REDIRECT_BINDING_URI, samlSecurityRealm.getBinding());
     }
 
@@ -135,7 +135,7 @@ public class SamlSecurityRealmTest {
         assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
         assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-        assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(true, samlSecurityRealm.getIdpMetadataConfiguration().getIdpMetadata().startsWith("<?xml version"));
         assertEquals("/home/jdk/keystore", samlSecurityRealm.getEncryptionData().getKeystorePath());
         assertEquals(Secret.fromString("changeitks"), samlSecurityRealm.getEncryptionData().getKeystorePassword());
         assertEquals(Secret.fromString("changeitpk"), samlSecurityRealm.getEncryptionData().getPrivateKeyPassword());
@@ -156,7 +156,7 @@ public class SamlSecurityRealmTest {
         assertEquals(86400, samlSecurityRealm.getMaximumAuthenticationLifetime().longValue());
         assertEquals("none", samlSecurityRealm.getUsernameCaseConversion());
         assertEquals("urn:mace:dir:attribute-def:uid", samlSecurityRealm.getUsernameAttributeName());
-        assertEquals(true, samlSecurityRealm.getIdpMetadataConfigurationConfiguration().getIdpMetadata().startsWith("<?xml version"));
+        assertEquals(true, samlSecurityRealm.getIdpMetadataConfiguration().getIdpMetadata().startsWith("<?xml version"));
         assertEquals("/home/jdk/keystore", samlSecurityRealm.getEncryptionData().getKeystorePath());
         assertEquals(Secret.fromString("changeit"), samlSecurityRealm.getEncryptionData().getKeystorePassword());
         assertEquals(Secret.fromString("changeit"), samlSecurityRealm.getEncryptionData().getPrivateKeyPassword());
@@ -186,7 +186,7 @@ public class SamlSecurityRealmTest {
                 samlSecurityRealm.getGroupsAttributeName(),
                 samlSecurityRealm.getMaximumAuthenticationLifetime(),
                 samlSecurityRealm.getEmailAttributeName(),
-                samlSecurityRealm.getIdpMetadataConfigurationConfiguration(),
+                samlSecurityRealm.getIdpMetadataConfiguration(),
                 samlSecurityRealm.getUsernameCaseConversion(),
                 samlSecurityRealm.getUsernameAttributeName(),
                 samlSecurityRealm.getLogoutUrl(),
@@ -235,7 +235,7 @@ public class SamlSecurityRealmTest {
 
         String idpMetadata = FileUtils.readFileToString(new File(SamlSecurityRealm.getIDPMetadataFilePath()));
         String configuredMetadata = ((SamlSecurityRealm) jenkinsRule.getInstance().getSecurityRealm())
-                .getIdpMetadataConfigurationConfiguration().getIdpMetadata();
+                .getIdpMetadataConfiguration().getIdpMetadata();
         idpMetadata = idpMetadata.replace(" ", ""); // remove spaces
         idpMetadata = idpMetadata.replace("\\n", ""); // remove new lines
         configuredMetadata = configuredMetadata.replace(" ", ""); // remove spaces
