@@ -152,6 +152,30 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
             return FormValidation.ok();
         }
 
+        public FormValidation doCheckKeystorePassword(@QueryParameter String keystorePassword) {
+            if (StringUtils.isEmpty(keystorePassword)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(keystorePassword)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckPrivateKeyPassword(@QueryParameter String privateKeyPassword) {
+            if (StringUtils.isEmpty(privateKeyPassword)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(privateKeyPassword)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
         public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,
                                                          @QueryParameter("keystorePassword") Secret keystorePassword,
                                                          @QueryParameter("privateKeyPassword") Secret privateKeyPassword,
