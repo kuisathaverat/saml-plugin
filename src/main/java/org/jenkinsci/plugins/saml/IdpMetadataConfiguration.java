@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import javax.annotation.Nonnull;
 import javax.xml.transform.OutputKeys;
@@ -108,7 +109,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
      */
     public void createIdPMetadataFile() throws IOException {
         try {
-            if (xml != null) {
+            if (StringUtils.isNotBlank(xml)) {
                 FileUtils.writeStringToFile(new File(SamlSecurityRealm.getIDPMetadataFilePath()), xml);
             } else {
                 updateIdPMetadata();
@@ -173,7 +174,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return "";
         }
 
-        public FormValidation doTestIdpMetadata(@org.kohsuke.stapler.QueryParameter("xml") String xml) {
+        public FormValidation doTestIdpMetadata(@QueryParameter("xml") String xml) {
             if (StringUtils.isBlank(xml)) {
                 return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
             }
@@ -181,7 +182,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return new SamlValidateIdPMetadata(xml).get();
         }
 
-        public FormValidation doCheckPeriod(@org.kohsuke.stapler.QueryParameter("period") String period) {
+        public FormValidation doCheckPeriod(@QueryParameter("period") String period) {
             if (StringUtils.isEmpty(period)) {
                 return FormValidation.error(ERROR_NOT_VALID_NUMBER);
             }
@@ -203,15 +204,15 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckXml(@org.kohsuke.stapler.QueryParameter("xml") String xml) {
-            if (StringUtils.isBlank(xml)) {
+        public FormValidation doCheckXml(@QueryParameter("xml") String xml, @QueryParameter("url") String url) {
+            if (StringUtils.isBlank(xml) && StringUtils.isBlank(url)) {
                 return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
             }
 
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckUrl(@org.kohsuke.stapler.QueryParameter("url") String url) {
+        public FormValidation doCheckUrl(@QueryParameter("url") String url) {
             if (StringUtils.isEmpty(url)) {
                 return FormValidation.ok();
             }
@@ -223,7 +224,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
             return FormValidation.ok();
         }
 
-        public FormValidation doTestIdpMetadataURL(@org.kohsuke.stapler.QueryParameter("url") String url) {
+        public FormValidation doTestIdpMetadataURL(@QueryParameter("url") String url) {
             URLConnection urlConnection = null;
             try {
                 urlConnection = new URL(url).openConnection();
