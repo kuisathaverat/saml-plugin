@@ -71,7 +71,7 @@ public class SamlSecurityRealm extends SecurityRealm {
     public static final int DEFAULT_MAXIMUM_AUTHENTICATION_LIFETIME = 24 * 60 * 60; // 24h
     public static final String DEFAULT_USERNAME_CASE_CONVERSION = "none";
     public static final String SP_METADATA_FILE_NAME = "/saml-sp-metadata.xml";
-    public static final String IDP_METADATA_FILE_NAME = "/saml-idp.metadata.xml";
+    public static final String IDP_METADATA_FILE_NAME = "/saml-idp-metadata.xml";
 
     /**
      * form validation messages.
@@ -577,56 +577,6 @@ public class SamlSecurityRealm extends SecurityRealm {
             return FormValidation.ok();
         }
 
-        public FormValidation doTestIdpMetadata(@QueryParameter("xml") String xml) {
-            if (StringUtils.isBlank(xml)) {
-                return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
-            }
-
-            return new SamlValidateIdPMetadata(xml).get();
-        }
-
-        public FormValidation doCheckPeriod(@QueryParameter("period") String period) {
-            if (StringUtils.isEmpty(period)) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-            long i = 0;
-            try {
-                i = Long.parseLong(period);
-            } catch (NumberFormatException e) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
-            }
-
-            if (i < 0) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-
-            if (i > Integer.MAX_VALUE) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-
-            return FormValidation.ok();
-        }
-
-        public FormValidation doCheckXml(@QueryParameter("xml") String xml) {
-            if (StringUtils.isBlank(xml)) {
-                return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
-            }
-
-            return FormValidation.ok();
-        }
-
-        public FormValidation doCheckUrl(@QueryParameter("url") String url) {
-            if (StringUtils.isEmpty(url)) {
-                return FormValidation.ok();
-            }
-            try {
-                new URL(url);
-            } catch (MalformedURLException e) {
-                return FormValidation.error(ERROR_MALFORMED_URL, e);
-            }
-            return FormValidation.ok();
-        }
-
         public FormValidation doCheckDisplayNameAttributeName(@QueryParameter String displayNameAttributeName) {
             if (StringUtils.isEmpty(displayNameAttributeName)) {
                 return FormValidation.ok();
@@ -675,80 +625,6 @@ public class SamlSecurityRealm extends SecurityRealm {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckAuthnContextClassRef(@QueryParameter String authnContextClassRef) {
-            if (StringUtils.isEmpty(authnContextClassRef)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(authnContextClassRef)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
-        }
-
-
-        public FormValidation doCheckSpEntityId(@QueryParameter String spEntityId) {
-            if (StringUtils.isEmpty(spEntityId)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(spEntityId)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
-        }
-
-
-        public FormValidation doCheckKeystorePath(@QueryParameter String keystorePath) {
-            if (StringUtils.isEmpty(keystorePath)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(keystorePath)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
-        }
-
-        public FormValidation doCheckKPrivateKeyAlias(@QueryParameter String privateKeyAlias) {
-            if (StringUtils.isEmpty(privateKeyAlias)) {
-                return FormValidation.ok();
-            }
-
-            if (StringUtils.isBlank(privateKeyAlias)) {
-                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
-            }
-
-            return FormValidation.ok();
-        }
-
-
-        public FormValidation doCheckMaximumSessionLifetime(@QueryParameter String maximumSessionLifetime) {
-            if (StringUtils.isEmpty(maximumSessionLifetime)) {
-                return FormValidation.ok();
-            }
-
-            long i = 0;
-            try {
-                i = Long.parseLong(maximumSessionLifetime);
-            } catch (NumberFormatException e) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
-            }
-
-            if (i < 0) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-
-            if (i > Integer.MAX_VALUE) {
-                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
-            }
-
-            return FormValidation.ok();
-        }
-
         public FormValidation doCheckMaximumAuthenticationLifetime(@QueryParameter String maximumAuthenticationLifetime) {
             if (StringUtils.isEmpty(maximumAuthenticationLifetime)) {
                 return FormValidation.ok();
@@ -770,67 +646,6 @@ public class SamlSecurityRealm extends SecurityRealm {
             }
 
             return FormValidation.ok();
-        }
-
-        public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,
-                                             @QueryParameter("keystorePassword") Secret keystorePassword,
-                                             @QueryParameter("privateKeyPassword") Secret privateKeyPassword,
-                                             @QueryParameter("privateKeyAlias") String privateKeyAlias) {
-            if (StringUtils.isBlank(keystorePath)) {
-                return FormValidation.warning(WARN_THERE_IS_NOT_KEY_STORE);
-            }
-            try (InputStream in = new FileInputStream(keystorePath)) {
-                KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-                ks.load(in, keystorePassword.getPlainText().toCharArray());
-
-                KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection(null);
-                if (StringUtils.isNotBlank(privateKeyPassword.getPlainText())) {
-                    keyPassword = new KeyStore.PasswordProtection(privateKeyPassword.getPlainText().toCharArray());
-                }
-
-                Enumeration<String> aliases = ks.aliases();
-                while (aliases.hasMoreElements()) {
-                    String currentAlias = aliases.nextElement();
-                    if (StringUtils.isBlank(privateKeyAlias) || currentAlias.equalsIgnoreCase(privateKeyAlias)) {
-                        ks.getEntry(currentAlias, keyPassword);
-                        return FormValidation.ok(SUCCESS);
-                    }
-                }
-
-            } catch (IOException e) {
-                return FormValidation.error(e, ERROR_NOT_POSSIBLE_TO_READ_KS_FILE);
-            } catch (CertificateException e) {
-                return FormValidation.error(e, ERROR_CERTIFICATES_COULD_NOT_BE_LOADED);
-            } catch (NoSuchAlgorithmException e) {
-                return FormValidation.error(e, ERROR_ALGORITHM_CANNOT_BE_FOUND);
-            } catch (KeyStoreException e) {
-                return FormValidation.error(e, ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL);
-            } catch (java.security.UnrecoverableKeyException e) {
-                return FormValidation.error(e, ERROR_WRONG_INFO_OR_PASSWORD);
-            } catch (UnrecoverableEntryException e) {
-                return FormValidation.error(e, ERROR_INSUFFICIENT_OR_INVALID_INFO);
-            }
-            return FormValidation.error(ERROR_NOT_KEY_FOUND);
-        }
-
-        public FormValidation doTestIdpMetadataURL(@QueryParameter("url") String url) {
-            URLConnection urlConnection = null;
-            try {
-                urlConnection = new URL(url).openConnection();
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, e.getMessage(), e);
-                return FormValidation.error(NOT_POSSIBLE_TO_GET_THE_METADATA + url);
-            }
-
-            try (InputStream in = urlConnection.getInputStream()) {
-                String xml = IOUtils.toString(in,StringUtils.defaultIfEmpty(urlConnection.getContentEncoding(),"UTF-8"));
-                return new SamlValidateIdPMetadata(xml).get();
-            } catch (MalformedURLException e) {
-                return FormValidation.error(ERROR_MALFORMED_URL);
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, e.getMessage(), e);
-                return FormValidation.error(NOT_POSSIBLE_TO_GET_THE_METADATA + url);
-            }
         }
     }
 

@@ -26,11 +26,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
 
 /**
  * Class to store the info about how to manage the IdP Metadata.
  */
 public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadataConfiguration> {
+    private static final Logger LOG = Logger.getLogger(IdpMetadataConfiguration.class.getName());
+
     /**
      * IdP Metadata on XML format, it implies there is not automatic updates.
      */
@@ -166,6 +171,76 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         @Override
         public String getDisplayName() {
             return "";
+        }
+
+        public FormValidation doTestIdpMetadata(@org.kohsuke.stapler.QueryParameter("xml") String xml) {
+            if (StringUtils.isBlank(xml)) {
+                return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
+            }
+
+            return new SamlValidateIdPMetadata(xml).get();
+        }
+
+        public FormValidation doCheckPeriod(@org.kohsuke.stapler.QueryParameter("period") String period) {
+            if (StringUtils.isEmpty(period)) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+            long i = 0;
+            try {
+                i = Long.parseLong(period);
+            } catch (NumberFormatException e) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
+            }
+
+            if (i < 0) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            if (i > Integer.MAX_VALUE) {
+                return FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckXml(@org.kohsuke.stapler.QueryParameter("xml") String xml) {
+            if (StringUtils.isBlank(xml)) {
+                return FormValidation.error(ERROR_IDP_METADATA_EMPTY);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckUrl(@org.kohsuke.stapler.QueryParameter("url") String url) {
+            if (StringUtils.isEmpty(url)) {
+                return FormValidation.ok();
+            }
+            try {
+                new URL(url);
+            } catch (MalformedURLException e) {
+                return FormValidation.error(ERROR_MALFORMED_URL, e);
+            }
+            return FormValidation.ok();
+        }
+
+        public FormValidation doTestIdpMetadataURL(@org.kohsuke.stapler.QueryParameter("url") String url) {
+            URLConnection urlConnection = null;
+            try {
+                urlConnection = new URL(url).openConnection();
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
+                return FormValidation.error(NOT_POSSIBLE_TO_GET_THE_METADATA + url);
+            }
+
+            try (InputStream in = urlConnection.getInputStream()) {
+                String xml = IOUtils.toString(in,StringUtils.defaultIfEmpty(urlConnection.getContentEncoding(),"UTF-8"));
+                return new SamlValidateIdPMetadata(xml).get();
+            } catch (MalformedURLException e) {
+                return FormValidation.error(ERROR_MALFORMED_URL);
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
+                return FormValidation.error(NOT_POSSIBLE_TO_GET_THE_METADATA + url);
+            }
         }
     }
 }

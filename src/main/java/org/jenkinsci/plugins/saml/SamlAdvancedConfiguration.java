@@ -25,6 +25,9 @@ import hudson.model.Descriptor;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_NOT_VALID_NUMBER;
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.ERROR_ONLY_SPACES_FIELD_VALUE;
+
 /**
  * Simple immutable data class to hold the optional advanced configuration data section
  * of the plugin's configuration page
@@ -88,5 +91,54 @@ public class SamlAdvancedConfiguration extends AbstractDescribableImpl<SamlAdvan
         public String getDisplayName() {
             return "Advanced Configuration";
         }
+
+        public hudson.util.FormValidation doCheckAuthnContextClassRef(@org.kohsuke.stapler.QueryParameter String authnContextClassRef) {
+            if (StringUtils.isEmpty(authnContextClassRef)) {
+                return hudson.util.FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(authnContextClassRef)) {
+                return hudson.util.FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return hudson.util.FormValidation.ok();
+        }
+
+
+        public hudson.util.FormValidation doCheckSpEntityId(@org.kohsuke.stapler.QueryParameter String spEntityId) {
+            if (StringUtils.isEmpty(spEntityId)) {
+                return hudson.util.FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(spEntityId)) {
+                return hudson.util.FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return hudson.util.FormValidation.ok();
+        }
+
+        public hudson.util.FormValidation doCheckMaximumSessionLifetime(@org.kohsuke.stapler.QueryParameter String maximumSessionLifetime) {
+            if (StringUtils.isEmpty(maximumSessionLifetime)) {
+                return hudson.util.FormValidation.ok();
+            }
+
+            long i = 0;
+            try {
+                i = Long.parseLong(maximumSessionLifetime);
+            } catch (NumberFormatException e) {
+                return hudson.util.FormValidation.error(ERROR_NOT_VALID_NUMBER, e);
+            }
+
+            if (i < 0) {
+                return hudson.util.FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            if (i > Integer.MAX_VALUE) {
+                return hudson.util.FormValidation.error(ERROR_NOT_VALID_NUMBER);
+            }
+
+            return hudson.util.FormValidation.ok();
+        }
+
     }
 }

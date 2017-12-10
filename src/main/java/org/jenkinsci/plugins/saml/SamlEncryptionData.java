@@ -21,6 +21,7 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.util.FormValidation;
 import hudson.util.Secret;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -28,6 +29,20 @@ import javax.annotation.Nonnull;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.QueryParameter;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Enumeration;
+
+import static org.jenkinsci.plugins.saml.SamlSecurityRealm.*;
 
 /**
  * Simple immutable data class to hold the optional encryption data section
@@ -112,5 +127,71 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         public String getDisplayName() {
             return "Encryption Configuration";
         }
+
+        public FormValidation doCheckKeystorePath(@QueryParameter String keystorePath) {
+            if (StringUtils.isEmpty(keystorePath)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(keystorePath)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckPrivateKeyAlias(@QueryParameter String privateKeyAlias) {
+            if (StringUtils.isEmpty(privateKeyAlias)) {
+                return FormValidation.ok();
+            }
+
+            if (StringUtils.isBlank(privateKeyAlias)) {
+                return FormValidation.error(ERROR_ONLY_SPACES_FIELD_VALUE);
+            }
+
+            return FormValidation.ok();
+        }
+
+        public FormValidation doTestKeyStore(@QueryParameter("keystorePath") String keystorePath,
+                                                         @QueryParameter("keystorePassword") Secret keystorePassword,
+                                                         @QueryParameter("privateKeyPassword") Secret privateKeyPassword,
+                                                         @QueryParameter("privateKeyAlias") String privateKeyAlias) {
+            if (StringUtils.isBlank(keystorePath)) {
+                return FormValidation.warning(WARN_THERE_IS_NOT_KEY_STORE);
+            }
+            try (InputStream in = new FileInputStream(keystorePath)) {
+                KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+                ks.load(in, keystorePassword.getPlainText().toCharArray());
+
+                KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection(null);
+                if (StringUtils.isNotBlank(privateKeyPassword.getPlainText())) {
+                    keyPassword = new KeyStore.PasswordProtection(privateKeyPassword.getPlainText().toCharArray());
+                }
+
+                Enumeration<String> aliases = ks.aliases();
+                while (aliases.hasMoreElements()) {
+                    String currentAlias = aliases.nextElement();
+                    if (StringUtils.isBlank(privateKeyAlias) || currentAlias.equalsIgnoreCase(privateKeyAlias)) {
+                        ks.getEntry(currentAlias, keyPassword);
+                        return FormValidation.ok(SUCCESS);
+                    }
+                }
+
+            } catch (IOException e) {
+                return FormValidation.error(e, ERROR_NOT_POSSIBLE_TO_READ_KS_FILE);
+            } catch (CertificateException e) {
+                return FormValidation.error(e, ERROR_CERTIFICATES_COULD_NOT_BE_LOADED);
+            } catch (NoSuchAlgorithmException e) {
+                return FormValidation.error(e, ERROR_ALGORITHM_CANNOT_BE_FOUND);
+            } catch (KeyStoreException e) {
+                return FormValidation.error(e, ERROR_NO_PROVIDER_SUPPORTS_A_KS_SPI_IMPL);
+            } catch (UnrecoverableKeyException e) {
+                return FormValidation.error(e, ERROR_WRONG_INFO_OR_PASSWORD);
+            } catch (UnrecoverableEntryException e) {
+                return FormValidation.error(e, ERROR_INSUFFICIENT_OR_INVALID_INFO);
+            }
+            return FormValidation.error(ERROR_NOT_KEY_FOUND);
+        }
+
     }
 }
