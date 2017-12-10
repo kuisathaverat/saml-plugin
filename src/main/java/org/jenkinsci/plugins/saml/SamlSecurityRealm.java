@@ -33,6 +33,7 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.*;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.pac4j.core.client.RedirectAction;
 import org.pac4j.core.client.RedirectAction.RedirectType;
 import org.springframework.dao.DataAccessException;
@@ -253,6 +254,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param response http response.
      * @return the http response.
      */
+    @RequirePOST
     public HttpResponse doFinishLogin(final StaplerRequest request, final StaplerResponse response) {
         LOG.finer("SamlSecurityRealm.doFinishLogin called");
         logSamlResponse(request);
