@@ -76,8 +76,7 @@ public class BundleKeyStore {
      */
     public synchronized void init() {
         try {
-
-            if (keystore == null) {
+            if (keystore == null || !keystoreFileExists()) {
                 String jenkinsHome = jenkins.model.Jenkins.getInstance().getRootDir().getPath();
                 keystore = java.nio.file.Paths.get(jenkinsHome, "saml-jenkins-keystore.jks").toFile();
                 keystorePath = "file:" + keystore.getPath();
@@ -291,6 +290,15 @@ public class BundleKeyStore {
             validity.setTime(dateValidity);
             ret = Calendar.getInstance().compareTo(validity) <= 0;
         }
+        ret &= keystoreFileExists();
         return ret;
+    }
+
+    /**
+     *
+     * @return true if the keystore file exists and is readable.
+     */
+    private boolean keystoreFileExists() {
+        return keystore != null  && keystore.exists() && keystore.canRead();
     }
 }
