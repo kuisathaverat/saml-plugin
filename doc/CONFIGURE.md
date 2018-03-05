@@ -72,10 +72,7 @@ Not all IdPs use the same terminology, these are the fields for some common IdPs
 
 ### Okta
 
-* Postback URL
-* Recipient
-* Audience Restriction
-* Destination
+[How do I setup OKTA as Identity Provider in Jenkins?](https://support.cloudbees.com/hc/en-us/articles/115000105752)
 
 ### OneLogin
 
@@ -84,6 +81,14 @@ These are the fields for the OneLogin SAML Test (IdP) app template. Other app te
 * SAML Consumer URL
 * SAML Audience
 * SAML Recipient
+
+### ADFS
+
+[Configure ADFS](ADFS_CONFIG.md)
+
+### Azure
+
+[Configure Azure](CONFIGURE_AZURE.md)
 
 ### Configuring Single Log Out
 
