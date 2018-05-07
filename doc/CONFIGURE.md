@@ -9,14 +9,11 @@ Configuring Jenkins
 
 You'll also need to turn on authorization for the SAML settings to take effect. As long as the anonymous user can take all actions, Jenkins won't try to log the user in.
 
-![](images/SAMLPluginSetting.png)
+![](images/Screen_Shot_2017-05-30_at_18.01.09.png)
 
 ## Configuring plugin settings
 
-* **Metadata**
-  * **IdP Metadata** - Identity Provider Metadata in XML format. Usually, identity providers that support SAML expose metadata in XML form by public URL. This metadata should be downloaded and copy-pasted to this field (not need if you have set the IdP Metadata URL).
-  * **IdP Metadata URL** - The Identity Provider metadata file source URL (not need if you have set the IdP Metadata).
-    * **Refresh Period** - The period of minutes we will wait until refresh the IdP Metadata. Set it to 0 to not update the metadata.
+* **IdP Metadata** - Identity Provider Metadata in XML format. Usually, identity providers that support SAML expose metadata in XML form by public URL. This metadata should be downloaded and copy-pasted to this field.
 * **Display Name Attribute** - Name of the attribute that carries the display name (optional). If not specified, the username is used.
 * **Group Attribute** - Name of the attribute that carries user groups (optional). This attribute must have separate AttributeValue elements per role (so for example, they can't be concatenated to a single string).
 * **Maximum Authentication Lifetime** - Number of seconds since the user was authenticated in IdP while his authentication is considering as active. If you often get "No valid subject assertion found in response" or "Authentication issue instant is too old or in the future" then most probably you need to increase this value. Set this setting to value greater than the session lifetime on IdP
@@ -72,7 +69,10 @@ Not all IdPs use the same terminology, these are the fields for some common IdPs
 
 ### Okta
 
-[How do I setup OKTA as Identity Provider in Jenkins?](https://support.cloudbees.com/hc/en-us/articles/115000105752)
+* Postback URL
+* Recipient
+* Audience Restriction
+* Destination
 
 ### OneLogin
 
@@ -81,14 +81,6 @@ These are the fields for the OneLogin SAML Test (IdP) app template. Other app te
 * SAML Consumer URL
 * SAML Audience
 * SAML Recipient
-
-### ADFS
-
-[Configure ADFS](ADFS_CONFIG.md)
-
-### Azure
-
-[Configure Azure](CONFIGURE_AZURE.md)
 
 ### Configuring Single Log Out
 

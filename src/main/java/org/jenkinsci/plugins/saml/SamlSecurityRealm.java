@@ -17,7 +17,6 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.security.GroupDetails;
 import hudson.security.UserMayOrMayNotExistException;
@@ -33,9 +32,6 @@ import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.saml.conf.Attribute;
-import org.jenkinsci.plugins.saml.conf.AttributeEntry;
-import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.stapler.*;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.pac4j.core.client.RedirectAction;
@@ -120,8 +116,6 @@ public class SamlSecurityRealm extends SecurityRealm {
 
     private IdpMetadataConfiguration idpMetadataConfiguration;
 
-    private List<AttributeEntry> samlCustomAttributes;
-
     /**
      * Jenkins passes these parameters in when you update the settings.
      * It does this because of the @DataBoundConstructor.
@@ -137,7 +131,6 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param encryptionData                encryption configuration settings
      * @param usernameCaseConversion        username case sensitive settings
      * @param binding                       SAML binding method.
-     * @param samlCustomAttributes          Custom Attributes to read from the SAML Responsse.
      * @throws IOException if it is not possible to write the IdP metadata file.
      */
     @DataBoundConstructor
@@ -152,8 +145,7 @@ public class SamlSecurityRealm extends SecurityRealm {
             SamlAdvancedConfiguration advancedConfiguration,
             SamlEncryptionData encryptionData,
             String usernameCaseConversion,
-            String binding,
-            List<AttributeEntry> samlCustomAttributes) throws IOException {
+            String binding) throws IOException {
         super();
         this.idpMetadataConfiguration = idpMetadataConfiguration;
         this.usernameAttributeName = hudson.Util.fixEmptyAndTrim(usernameAttributeName);
@@ -177,7 +169,6 @@ public class SamlSecurityRealm extends SecurityRealm {
         this.advancedConfiguration = advancedConfiguration;
         this.encryptionData = encryptionData;
         this.binding = binding;
-        this.samlCustomAttributes = samlCustomAttributes;
 
         this.idpMetadataConfiguration.createIdPMetadataFile();
         LOG.finer(this.toString());
@@ -300,8 +291,6 @@ public class SamlSecurityRealm extends SecurityRealm {
         //retrieve user email
         saveUser |= modifyUserEmail(user, (List<String>) saml2Profile.getAttribute(getEmailAttributeName()));
 
-        saveUser |= modifyUserSamlCustomAttributes(user, saml2Profile);
-
         try {
             if (user != null && saveUser) {
                 user.save();
@@ -317,30 +306,6 @@ public class SamlSecurityRealm extends SecurityRealm {
         String referer = (String) request.getSession().getAttribute(REFERER_ATTRIBUTE);
         String redirectUrl = referer != null ? referer : baseUrl();
         return HttpResponses.redirectTo(redirectUrl);
-    }
-
-    
-    private boolean modifyUserSamlCustomAttributes(User user, SAML2Profile profile) {
-        boolean saveUser = false;
-        if(!getSamlCustomAttributes().isEmpty() && user != null){
-            SamlCustomProperty userProperty = new SamlCustomProperty(new ArrayList<>());
-
-            for (AttributeEntry attributeEntry : getSamlCustomAttributes()) {
-                if(attributeEntry instanceof Attribute){
-                    Attribute attr =  (Attribute) attributeEntry;
-                    SamlCustomProperty.Attribute item = new SamlCustomProperty.Attribute(attr.getName(),attr.getDisplayName());
-                    item.setValue(profile.getAttribute(attr.getName()).toString());
-                    userProperty.getAttributes().add(item);
-                }
-            }
-            try {
-                user.addProperty(userProperty);
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, "Could not update user SAML custom attributes", e);
-            }
-            saveUser = true;
-        }
-        return saveUser;
     }
 
     /**
@@ -722,18 +687,6 @@ public class SamlSecurityRealm extends SecurityRealm {
         return idpMetadataConfiguration;
     }
 
-    @NonNull
-    public List<AttributeEntry> getSamlCustomAttributes() {
-        if(samlCustomAttributes == null){
-            return java.util.Collections.emptyList();
-        }
-        return samlCustomAttributes;
-    }
-
-    public void setSamlCustomAttribute(List<AttributeEntry> samlCustomAttributes) {
-        this.samlCustomAttributes = samlCustomAttributes;
-    }
-
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlSecurityRealm{");
@@ -741,5 +694,4 @@ public class SamlSecurityRealm extends SecurityRealm {
         sb.append('}');
         return sb.toString();
     }
-
 }

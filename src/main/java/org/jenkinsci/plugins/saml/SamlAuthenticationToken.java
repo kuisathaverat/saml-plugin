@@ -17,12 +17,14 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
+import org.kohsuke.stapler.Stapler;
 
 import org.acegisecurity.providers.AbstractAuthenticationToken;
 import org.acegisecurity.context.SecurityContextHolder;
 
 import javax.servlet.http.HttpSession;
 
+import jenkins.model.Jenkins;
 import jenkins.security.SecurityListener;
 
 import javax.annotation.Nonnull;
