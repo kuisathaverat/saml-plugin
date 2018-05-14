@@ -55,7 +55,7 @@ public class SamlProfileWrapper extends OpenSAMLWrapper<SAML2Profile> {
             credentials = client.getCredentials(context);
             saml2Profile = client.getUserProfile(credentials, context);
         } catch (HttpAction|SAMLException e) {
-            //if the SAMLResponse is not valid we send the used again to the IdP
+            //if the SAMLResponse is not valid we send the user again to the IdP
             throw new BadCredentialsException(e.getMessage(), e);
         }
         if (saml2Profile == null) {
