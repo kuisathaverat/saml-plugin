@@ -101,7 +101,7 @@ public class BundleKeyStore {
                 keystorePath = "file:" + keystore.getPath();
             }
 
-            if (PAC4J_DEMO_KEYSTORE.equals(ksPassword)) {
+            if (PAC4J_DEMO_KEYSTORE.equals(ksPassword.getPlainText())) {
                 ksPassword = Secret.fromString(generatePassword());
                 ksPkPassword = Secret.fromString(generatePassword());
             }
