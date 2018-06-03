@@ -309,22 +309,26 @@ public class BundleKeyStore {
      * @return true is the key store is still valid.
      */
     public synchronized boolean isValid() {
-        boolean ret = false;
+        boolean notExpired = false;
+        boolean fileExists = keystoreFileExists();
+        boolean keysExists = false;
+
         if (dateValidity != null) {
             Calendar validity = Calendar.getInstance();
             validity.setTime(dateValidity);
-            ret = Calendar.getInstance().compareTo(validity) <= 0;
+            notExpired = Calendar.getInstance().compareTo(validity) <= 0;
         }
-        ret &= keystoreFileExists();
-        try {
-            KeyStore ks = loadKeyStore(keystore, ksPassword.getPlainText());
-            ret &= ks.getKey(ksPkAlias, ksPkPassword.getPlainText().toCharArray()) != null;
-        } catch (KeyStoreException|IOException|CertificateException|NoSuchAlgorithmException
-                |UnrecoverableKeyException e) {
-           LOG.log(WARNING, "THe keystore is not accessible", e);
-           ret = false;
+        if(fileExists) {
+            try {
+                KeyStore ks = loadKeyStore(keystore, ksPassword.getPlainText());
+                keysExists = ks.getKey(ksPkAlias, ksPkPassword.getPlainText().toCharArray()) != null;
+            } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException
+                    | UnrecoverableKeyException e) {
+                LOG.log(WARNING, "THe keystore is not accessible", e);
+                keysExists = false;
+            }
         }
-        return ret;
+        return notExpired && fileExists && keysExists;
     }
 
     /**
