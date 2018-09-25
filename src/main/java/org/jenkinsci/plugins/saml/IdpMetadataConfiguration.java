@@ -1,9 +1,11 @@
 package org.jenkinsci.plugins.saml;
 
 import hudson.Extension;
+import hudson.ProxyConfiguration;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -23,9 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -129,7 +129,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
      */
     public void updateIdPMetadata() throws IOException {
         try {
-            URLConnection urlConnection = new URL(url).openConnection();
+            URLConnection urlConnection = ProxyConfiguration.open(new URL(url));
             try (InputStream in = urlConnection.getInputStream()) {
                 TransformerFactory tf = TransformerFactory.newInstance();
                 Transformer transformer = tf.newTransformer();
@@ -231,7 +231,7 @@ public class IdpMetadataConfiguration extends AbstractDescribableImpl<IdpMetadat
         public FormValidation doTestIdpMetadataURL(@QueryParameter("url") String url) {
             URLConnection urlConnection = null;
             try {
-                urlConnection = new URL(url).openConnection();
+                urlConnection = ProxyConfiguration.open(new URL(url));
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, e.getMessage(), e);
                 return FormValidation.error(NOT_POSSIBLE_TO_GET_THE_METADATA + url);
