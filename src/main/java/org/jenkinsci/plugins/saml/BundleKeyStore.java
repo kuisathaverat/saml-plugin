@@ -180,12 +180,8 @@ public class BundleKeyStore {
      */
     private void saveKeyStore(File keystore, KeyStore ks, String password)
             throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
-        FileOutputStream fos;
-        fos = new FileOutputStream(keystore);
-        try {
+        try (FileOutputStream fos = new FileOutputStream(keystore)){
             ks.store(fos, password.toCharArray());
-        } finally {
-            fos.close();
         }
     }
 

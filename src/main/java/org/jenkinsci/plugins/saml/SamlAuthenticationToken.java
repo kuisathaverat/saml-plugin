@@ -35,7 +35,7 @@ public final class SamlAuthenticationToken extends AbstractAuthenticationToken {
     private static final long serialVersionUID = 2L;
 
     private final SamlUserDetails userDetails;
-    private final transient HttpSession session;
+    private final HttpSession session;
     private final Long expiration;
 
     public SamlAuthenticationToken(@Nonnull SamlUserDetails userDetails, @Nonnull HttpSession session) {
