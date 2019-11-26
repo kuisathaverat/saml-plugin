@@ -25,7 +25,7 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>2.32</version>
+    <version>3.54</version>
   </parent>
 
   <artifactId>saml</artifactId>
