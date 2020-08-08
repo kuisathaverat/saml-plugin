@@ -39,8 +39,8 @@ import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jenkinsci.plugins.saml.user.SamlCustomProperty;
 import org.kohsuke.stapler.*;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-import org.pac4j.core.client.RedirectAction;
-import org.pac4j.core.client.RedirectAction.RedirectType;
+import org.pac4j.core.redirect.RedirectAction;
+import org.pac4j.core.redirect.RedirectAction.RedirectType;
 import org.springframework.dao.DataAccessException;
 import org.pac4j.saml.profile.SAML2Profile;
 

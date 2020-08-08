@@ -7,9 +7,7 @@ Jenkins CI licenses this file to you under the Apache License,
 Version 2.0 (the "License"); you may not use this file except
 in compliance with the License.  You may obtain a copy of the
 License at
-
   http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,7 +23,7 @@ under the License.
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.55</version>
+    <version>4.3</version>
   </parent>
 
   <artifactId>saml</artifactId>
@@ -44,7 +42,7 @@ under the License.
   <properties>
     <revision>1.1.7</revision>
     <changelist>-SNAPSHOT</changelist>
-    <jenkins.version>2.176.1</jenkins.version>
+    <jenkins.version>2.251</jenkins.version>
     <java.level>8</java.level>
     <jcasc.version>1.35</jcasc.version>
   </properties>
@@ -78,6 +76,16 @@ under the License.
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
+    <repository>
+      <id>shib-release</id>
+      <url>https://build.shibboleth.net/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -90,7 +98,7 @@ under the License.
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-saml</artifactId>
-      <version>1.9.9</version>
+      <version>3.8.3</version>
       <exclusions>
         <exclusion>
           <groupId>org.springframework</groupId>
@@ -116,6 +124,11 @@ under the License.
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpclient</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.opensaml</groupId>
+          <artifactId>opensaml-storage-impl</artifactId>
+        </exclusion>
+          
       </exclusions>
     </dependency>
     <dependency>
@@ -128,21 +141,6 @@ under the License.
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>bouncycastle-api</artifactId>
       <version>2.18</version>
-    </dependency>
-    <dependency>
-      <groupId>net.shibboleth.utilities</groupId>
-      <artifactId>java-support</artifactId>
-      <version>7.2.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-codec</groupId>
-          <artifactId>commons-codec</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -171,11 +169,18 @@ under the License.
   </dependencies>
   <dependencyManagement>
     <dependencies>
-    <dependency>
-      <groupId>org.cryptacular</groupId>
-      <artifactId>cryptacular</artifactId>
-      <version>1.2.4</version>
-    </dependency>
+      <dependency>
+        <groupId>org.cryptacular</groupId>
+        <artifactId>cryptacular</artifactId>
+        <version>1.2.4</version>
+      </dependency>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.235.x</artifactId>
+        <version>11</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <build>

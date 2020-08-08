@@ -25,7 +25,9 @@ import org.opensaml.core.config.InitializationService;
 import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.config.SAML2Configuration;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.*;
@@ -91,9 +93,9 @@ public abstract class OpenSAMLWrapper<T> {
      * @return a SAML2Client object to interact with the IdP service.
      */
     protected SAML2Client createSAML2Client() {
-        final SAML2ClientConfigurationCustom config = new SAML2ClientConfigurationCustom();
+        final SAML2Configuration config = new SAML2Configuration();
         config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
-        config.setDestinationBindingType(samlPluginConfig.getBinding());
+        config.setAuthnRequestBindingType(samlPluginConfig.getBinding());
         config.setWantsAssertionsSigned(true);
 
         SamlEncryptionData encryptionData = samlPluginConfig.getEncryptionData();
@@ -150,10 +152,14 @@ public abstract class OpenSAMLWrapper<T> {
         config.setServiceProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getSPMetadataFilePath()));
         final SAML2Client saml2Client = new SAML2Client(config);
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
-        saml2Client.init(createWebContext());
+        saml2Client.init();
 
         if (LOG.isLoggable(FINE)) {
-            LOG.fine(saml2Client.getServiceProviderMetadataResolver().getMetadata());
+            try {
+                LOG.fine(saml2Client.getServiceProviderMetadataResolver().getMetadata());
+            } catch (IOException e) {
+                LOG.fine("Is not possible to show the metadata : " + e.getMessage());
+            }
         }
         return saml2Client;
     }
