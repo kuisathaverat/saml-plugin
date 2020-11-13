@@ -128,6 +128,10 @@ under the License.
           <groupId>org.dom4j</groupId>
           <artifactId>dom4j</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -178,10 +182,6 @@ under the License.
         <version>17</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
       </dependency>
       <dependency>
         <groupId>org.cryptacular</groupId>
