@@ -42,7 +42,7 @@ under the License.
   </scm>
 
   <properties>
-    <revision>1.1.7</revision>
+    <revision>1.1.8</revision>
     <changelist>-SNAPSHOT</changelist>
     <jenkins.version>2.266</jenkins.version>
     <java.level>8</java.level>
@@ -186,6 +186,12 @@ under the License.
       <dependency>
         <groupId>org.cryptacular</groupId>
         <artifactId>cryptacular</artifactId>
+      </dependency>
+      <!-- TODO: remove when CVE-2019-12400 is resolved -->
+      <dependency>
+        <groupId>org.apache.santuario</groupId>
+        <artifactId>xmlsec</artifactId>
+        <version>2.1.4</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
