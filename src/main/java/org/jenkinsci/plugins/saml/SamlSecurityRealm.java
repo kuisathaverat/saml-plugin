@@ -245,6 +245,7 @@ public class SamlSecurityRealm extends SecurityRealm {
      * @param request  http request.
      * @param response http response.
      * @param referer  referer.
+     * @param from http request "from" parameter.
      * @return the http response.
      */
     public HttpResponse doCommenceLogin(final StaplerRequest request, final StaplerResponse response, @QueryParameter
