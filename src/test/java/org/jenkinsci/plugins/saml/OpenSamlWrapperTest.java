@@ -23,21 +23,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.mockito.Mockito;
-import org.pac4j.saml.profile.SAML2Profile;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.opensaml.saml.common.xml.SAMLConstants.SAML2_REDIRECT_BINDING_URI;
 
@@ -51,7 +47,10 @@ public class OpenSamlWrapperTest {
 
     @Test
     public void metadataWrapper() throws IOException, ServletException {
-        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/metadataWrapper/metadata.xml"));
+        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci"
+                                                                                                + "/plugins/saml"
+                                                                                                + "/OpenSamlWrapperTest/metadataWrapper/metadata.xml"),
+                                           StandardCharsets.UTF_8);
         SamlSecurityRealm samlSecurity = new SamlSecurityRealm(new IdpMetadataConfiguration(metadata),
                 "displayName", "groups", 10000,
                 "uid", "email", "/logout", null,
@@ -73,7 +72,10 @@ public class OpenSamlWrapperTest {
 
     @Test
     public void metadataWrapperWitEncrytionConfigured() throws IOException, ServletException {
-        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/metadataWrapper/metadata.xml"));
+        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci"
+                                                                                                + "/plugins/saml/"
+                                                                                                + "OpenSamlWrapperTest/metadataWrapper/metadata.xml"),
+                                           StandardCharsets.UTF_8);
         BundleKeyStore ks = new BundleKeyStore();
         SamlEncryptionData encryptionData = new SamlEncryptionData(ks.getKeystorePath(),
                 Secret.fromString(ks.getKsPassword()), Secret.fromString(ks.getKsPkPassword()), ks.getKsPkAlias(), true);
@@ -95,33 +97,5 @@ public class OpenSamlWrapperTest {
         assertThat(result, containsString("<md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</md:NameIDFormat>"));
         assertThat(result, containsString("<md:SPSSODescriptor"));
         assertThat(result, containsString("<ds:X509Certificate>"));
-    }
-
-    //TODO [kuisathaverat] incomplete
-    public void profileWrapper() throws Exception {
-        String metadata = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/metadataWrapper/metadata.xml"));
-        String samlResponse = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("org/jenkinsci/plugins/saml/OpenSamlWrapperTest/profileWrapper/samlresponse.xml"));
-
-        SamlSecurityRealm samlSecurity = new SamlSecurityRealm(new IdpMetadataConfiguration(metadata),
-                "displayName", "groups", 10000,
-                "uid", "email", "/logout", null,
-                null, "none", SAML2_REDIRECT_BINDING_URI,
-                java.util.Collections.emptyList());
-        jenkinsRule.jenkins.setSecurityRealm(samlSecurity);
-
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        samlResponse = samlResponse.replace("DATE_NOW",df.format(new Date()));
-        samlResponse = samlResponse.replace("DATE_AFTER",df.format(new Date(System.currentTimeMillis() + 1000000)));
-        samlResponse = samlResponse.replace("CONSUMER_SERVICE",samlSecurity.getSamlPluginConfig().getConsumerServiceUrl());
-        samlResponse = samlResponse.replace("ENTITY_ID","http://192.168.99.100:8080/simplesaml/saml2/idp/metadata.php");
-
-        StaplerResponse mockResponse = Mockito.mock(StaplerResponse.class);
-        StaplerRequest mockRequest = Mockito.mock(StaplerRequest.class);
-        when(mockRequest.getMethod()).thenReturn("POST");
-        when(mockRequest.getParameter("SAMLResponse")).thenReturn(java.util.Base64.getEncoder().encodeToString(samlResponse.getBytes("UTF-8")));
-
-        SamlProfileWrapper samlProfileWrapper = new SamlProfileWrapper(samlSecurity.getSamlPluginConfig(), mockRequest, mockResponse);
-        SAML2Profile process = samlProfileWrapper.get();
-
     }
 }

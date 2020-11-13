@@ -1,18 +1,17 @@
 package org.jenkinsci.plugins.saml;
 
+import java.util.List;
 import hudson.security.SecurityRealm;
 import io.jenkins.plugins.casc.misc.RoundTripAbstractTest;
 import org.jenkinsci.plugins.saml.conf.Attribute;
 import org.jenkinsci.plugins.saml.conf.AttributeEntry;
 import org.jvnet.hudson.test.RestartableJenkinsRule;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertTrue;
 
 public class SamlJCasCCompatibilityTest extends RoundTripAbstractTest {
     @Override
