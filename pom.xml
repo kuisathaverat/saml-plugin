@@ -78,17 +78,6 @@ under the License.
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
-    <!-- TODO remove when https://issues.jenkins.io/browse/INFRA-2809 is resolved -->
-    <repository>
-      <id>shib-release</id>
-      <url>https://build.shibboleth.net/nexus/content/groups/public</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
