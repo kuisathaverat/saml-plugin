@@ -18,4 +18,7 @@
     <f:entry title="Auth Request Signature" field="forceSignRedirectBindingAuthnRequest" help="/plugin/saml/help/forceSignRedirectBindingAuthnRequest.html">
         <f:checkbox/>
     </f:entry>
+    <f:entry title="Wants Assertion Signed" field="wantsAssertionsSigned" help="/plugin/saml/help/wantsAssertionsSigned.html">
+        <f:checkbox/>
+    </f:entry>
 </j:jelly>

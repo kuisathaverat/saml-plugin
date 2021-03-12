@@ -24,7 +24,6 @@ import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -64,10 +63,11 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
     private Secret privateKeyPasswordSecret;
     private final String privateKeyAlias;
     private boolean forceSignRedirectBindingAuthnRequest;
+    private boolean wantsAssertionsSigned;
 
     @DataBoundConstructor
     public SamlEncryptionData(String keystorePath, Secret keystorePassword, Secret privateKeyPassword, String privateKeyAlias,
-                              boolean forceSignRedirectBindingAuthnRequest) {
+                              boolean forceSignRedirectBindingAuthnRequest, boolean wantsAssertionsSigned) {
         this.keystorePath = Util.fixEmptyAndTrim(keystorePath);
         if(keystorePassword != null && StringUtils.isNotEmpty(keystorePassword.getPlainText())){
             this.keystorePasswordSecret = keystorePassword;
@@ -77,6 +77,7 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         }
         this.privateKeyAlias = Util.fixEmptyAndTrim(privateKeyAlias);
         this.forceSignRedirectBindingAuthnRequest = forceSignRedirectBindingAuthnRequest;
+        this.wantsAssertionsSigned = wantsAssertionsSigned;
     }
 
     public String getKeystorePath() {
@@ -107,6 +108,14 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         return forceSignRedirectBindingAuthnRequest;
     }
 
+    public boolean isWantsAssertionsSigned() {
+        return wantsAssertionsSigned;
+    }
+
+    public void setWantsAssertionsSigned(boolean wantsAssertionsSigned) {
+        this.wantsAssertionsSigned = wantsAssertionsSigned;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("SamlEncryptionData{");
@@ -115,6 +124,7 @@ public class SamlEncryptionData extends AbstractDescribableImpl<SamlEncryptionDa
         sb.append(", privateKeyPassword is NOT empty='").append(getPrivateKeyPasswordPlainText() != null).append('\'');
         sb.append(", privateKeyAlias is NOT empty='").append(StringUtils.isNotEmpty(privateKeyAlias)).append('\'');
         sb.append(", forceSignRedirectBindingAuthnRequest = ").append(forceSignRedirectBindingAuthnRequest);
+        sb.append(", wantsAssertionsSigned = ").append(wantsAssertionsSigned);
         sb.append('}');
         return sb.toString();
     }

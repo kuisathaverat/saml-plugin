@@ -98,13 +98,14 @@ public abstract class OpenSAMLWrapper<T> {
         final SAML2Configuration config = new SAML2Configuration();
         config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
         config.setAuthnRequestBindingType(samlPluginConfig.getBinding());
-        config.setWantsAssertionsSigned(true);
 
         SamlEncryptionData encryptionData = samlPluginConfig.getEncryptionData();
         if (encryptionData != null) {
             config.setAuthnRequestSigned(encryptionData.isForceSignRedirectBindingAuthnRequest());
+            config.setWantsAssertionsSigned(encryptionData.isWantsAssertionsSigned());
         } else {
             config.setAuthnRequestSigned(false);
+            config.setWantsAssertionsSigned(false);
         }
 
         if(encryptionData != null && StringUtils.isNotBlank(encryptionData.getKeystorePath())){
