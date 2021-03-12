@@ -203,8 +203,9 @@ public class SamlSecurityRealmTest {
         SamlUserDetails userDetails = new SamlUserDetails("tesla",new GrantedAuthority[]{authority});
         assertEquals(userDetails.toString().contains("tesla") && userDetails.toString().contains("role001"), true);
 
-        assertThat(new SamlEncryptionData(null,null,null, null, false).toString(), containsString("SamlEncryptionData"));
-        assertThat(new SamlEncryptionData("", Secret.fromString(""), Secret.fromString(""), "", false).toString(), containsString("SamlEncryptionData"));
+        assertThat(new SamlEncryptionData(null,null,null, null, false, false).toString(), containsString(
+                "SamlEncryptionData"));
+        assertThat(new SamlEncryptionData("", Secret.fromString(""), Secret.fromString(""), "", false, false).toString(), containsString("SamlEncryptionData"));
 
         assertEquals(new SamlFileResource("fileNotExists").exists(),false);
         SamlFileResource file = new SamlFileResource("fileWillExists","data");

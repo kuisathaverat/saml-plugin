@@ -174,7 +174,8 @@ public class LiveTest {
         // TODO use @DataBoundSetter wherever possible and load defaults from DescriptorImpl
         File samlKey = new File(Jenkins.get().getRootDir(), "saml-key.jks");
         FileUtils.copyURLToFile(LiveTest.class.getResource("LiveTest/saml-key.jks"), samlKey);
-        SamlEncryptionData samlEncryptionData = new SamlEncryptionData(samlKey.getAbsolutePath(), Secret.fromString("changeit"), Secret.fromString("changeit"), null, false);
+        SamlEncryptionData samlEncryptionData = new SamlEncryptionData(samlKey.getAbsolutePath(), Secret.fromString(
+                "changeit"), Secret.fromString("changeit"), null, false, false);
         return new SamlSecurityRealm(idpMetadataConfiguration, "displayName", "eduPersonAffiliation", 86400, "uid", "email", null, advancedConfiguration, samlEncryptionData, "none", binding, Collections.emptyList());
     }
 

@@ -78,7 +78,8 @@ public class OpenSamlWrapperTest {
                                            StandardCharsets.UTF_8);
         BundleKeyStore ks = new BundleKeyStore();
         SamlEncryptionData encryptionData = new SamlEncryptionData(ks.getKeystorePath(),
-                Secret.fromString(ks.getKsPassword()), Secret.fromString(ks.getKsPkPassword()), ks.getKsPkAlias(), true);
+                Secret.fromString(ks.getKsPassword()), Secret.fromString(ks.getKsPkPassword()), ks.getKsPkAlias(),
+                                                                   true, true);
         SamlSecurityRealm samlSecurity = new SamlSecurityRealm(new IdpMetadataConfiguration(metadata),
                 "displayName", "groups", 10000,
                 "uid", "email", "/logout", null,
