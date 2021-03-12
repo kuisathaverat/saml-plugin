@@ -63,6 +63,12 @@ this key would be recreate when it expires, by default the key is not exposed in
 The attribute is sometimes called a claim, and for some IdPs it has a fixed structure, e.g. a URI. So in some documentation,
 you might see the term URI of the claim instead of the name of the attribute.
 
+## Service provider (SP) Metadata
+
+The SAML plugin generates the Service provider (SP) metadata you need to provide to your IdP, 
+you can get that SP metadata by clicking in the metadata link in the plugin configuration page, 
+or at the URL JENKINS_URL/securityRealm/metadata, or in the file JENKINS_HOME/saml-sp-metadata.xml
+
 ## Configuring groups security
 
 If your IdP provides the group(s) a user belongs to via an attribute of the SAML response,
@@ -153,3 +159,16 @@ Troubleshooting
 -------------------
 [Troubleshooting](TROUBLESHOOTING.md)
 
+# Glossary
+
+* <a href="https://en.wikipedia.org/wiki/Single_sign-on">Single sign-on</a>
+* <a href="https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language">Security Assertion Markup Language (SAML)</a>
+* <a href="https://en.wikipedia.org/wiki/SAML_2.0">SAML 2.0</a>
+* <a href="https://en.wikipedia.org/wiki/Identity_provider_(SAML)">Identity provider</a>
+* <a href="https://en.wikipedia.org/wiki/Service_provider_(SAML)">Service provider</a>
+* <a href="https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language#Assertions">Assertions (SAML)</a>
+* <a href="https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language#Protocols">Protocols (SAML)</a>
+* <a href="https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language#Bindings">Bindings (SAML)</a>
+* <a href="https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language#Profiles">Profiles (SAML)</a>
+* <a href="https://en.wikipedia.org/wiki/SAML_metadata">SAML metadata</a>
+* <a href="https://en.wikipedia.org/wiki/SAML_metadata">SAML metadata</a>

@@ -398,3 +398,9 @@ It is not possible to upgrade the library again because it uses a newer version 
 and Jenkins Core uses an old one. 
 So the only solution is to stop using pac4j library, 
 and use OpenSAML library directly, but this is a reimplementation of the plugin.
+
+# After an update the authentication fails
+
+The first thing to check after and update in case of error it is if the Service provider metadata has changed,
+this metadata is available at the URL `JENKINS_URL/securityRealm/metadata`, or in the file `JENKINS_HOME/saml-sp-metadata.xml`
+If you IdP support to grab the metadata from an URL is recommended to use the metadata from the URL `JENKINS_URL/securityRealm/metadata`
