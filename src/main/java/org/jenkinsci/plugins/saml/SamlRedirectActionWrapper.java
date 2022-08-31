@@ -19,10 +19,10 @@ package org.jenkinsci.plugins.saml;
 
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.pac4j.core.context.session.JEESessionStore;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.jee.context.session.JEESessionStore;
 import org.pac4j.saml.client.SAML2Client;
 
 /**
