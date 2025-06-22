@@ -17,15 +17,14 @@ under the License. */
 
 package org.jenkinsci.plugins.saml;
 
-import org.apache.commons.lang.StringUtils;
-import org.pac4j.saml.config.SAML2Configuration;
-
-import jenkins.model.Jenkins;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.CONSUMER_SERVICE_URL_PATH;
 import static org.jenkinsci.plugins.saml.SamlSecurityRealm.DEFAULT_USERNAME_CASE_CONVERSION;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
+import org.apache.commons.lang.StringUtils;
+import org.pac4j.saml.config.SAML2Configuration;
 
 /**
  * contains all the Jenkins SAML Plugin settings
@@ -142,7 +141,7 @@ public class SamlPluginConfig {
         return binding;
     }
 
-    public SAML2Configuration getSAML2Configuration(){
+    public SAML2Configuration getSAML2Configuration() {
         SAML2Configuration config = new SAML2Configuration();
         config.setIdentityProviderMetadataResource(new SamlFileResource(SamlSecurityRealm.getIDPMetadataFilePath()));
         config.setAuthnRequestBindingType(getBinding());
@@ -156,7 +155,7 @@ public class SamlPluginConfig {
             config.setWantsAssertionsSigned(false);
         }
 
-        if(encryptionData != null && StringUtils.isNotBlank(encryptionData.getKeystorePath())){
+        if (encryptionData != null && StringUtils.isNotBlank(encryptionData.getKeystorePath())) {
             config.setKeystorePath(encryptionData.getKeystorePath());
             config.setKeystorePassword(encryptionData.getKeystorePasswordPlainText());
             config.setPrivateKeyPassword(encryptionData.getPrivateKeyPasswordPlainText());
@@ -196,7 +195,7 @@ public class SamlPluginConfig {
                 config.setComparisonType("exact");
             }
 
-            if(getNameIdPolicyFormat() != null) {
+            if (getNameIdPolicyFormat() != null) {
                 config.setNameIdPolicyFormat(getNameIdPolicyFormat());
             }
         }

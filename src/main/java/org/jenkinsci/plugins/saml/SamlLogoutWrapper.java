@@ -40,8 +40,8 @@ public class SamlLogoutWrapper extends OpenSAMLWrapper<RedirectionAction> {
     private static final Logger LOG = Logger.getLogger(SamlProfileWrapper.class.getName());
     private String targetURL;
 
-
-    public SamlLogoutWrapper(SamlPluginConfig samlPluginConfig, StaplerRequest2 request, StaplerResponse2 response, String targetURL) {
+    public SamlLogoutWrapper(
+            SamlPluginConfig samlPluginConfig, StaplerRequest2 request, StaplerResponse2 response, String targetURL) {
         this.request = request;
         this.response = response;
         this.samlPluginConfig = samlPluginConfig;
@@ -56,20 +56,25 @@ public class SamlLogoutWrapper extends OpenSAMLWrapper<RedirectionAction> {
     protected RedirectionAction process() {
         SAML2AuthenticationCredentials credentials;
         SAML2Profile saml2Profile;
-        RedirectionAction logOutAction; 
+        RedirectionAction logOutAction;
         try {
             SAML2Client client = createSAML2Client();
             WebContext context = createWebContext();
             SessionStore sessionStore = createSessionStore();
             CallContext ctx = new CallContext(context, sessionStore);
-            SAML2Credentials unvalidated = (SAML2Credentials) client.getCredentials(ctx).orElse(null);
-            credentials = (SAML2AuthenticationCredentials) client.validateCredentials(ctx, unvalidated).orElse(null);
-            saml2Profile = (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
+            SAML2Credentials unvalidated =
+                    (SAML2Credentials) client.getCredentials(ctx).orElse(null);
+            credentials = (SAML2AuthenticationCredentials)
+                    client.validateCredentials(ctx, unvalidated).orElse(null);
+            saml2Profile =
+                    (SAML2Profile) client.getUserProfile(ctx, credentials).orElse(null);
             SAML2LogoutActionBuilder logoutActionBuilder = new SAML2LogoutActionBuilder(client);
-            logOutAction = logoutActionBuilder.getLogoutAction(ctx, saml2Profile, this.targetURL).get();
+            logOutAction = logoutActionBuilder
+                    .getLogoutAction(ctx, saml2Profile, this.targetURL)
+                    .get();
             client.destroy();
-        } catch (HttpAction|SAMLException e) {
-            //if the SAMLResponse is not valid we send the user again to the IdP
+        } catch (HttpAction | SAMLException e) {
+            // if the SAMLResponse is not valid we send the user again to the IdP
             throw new BadCredentialsException(e.getMessage(), e);
         }
         if (logOutAction == null) {

@@ -105,7 +105,7 @@ public abstract class OpenSAMLWrapper<T> {
         saml2Client.setCallbackUrl(samlPluginConfig.getConsumerServiceUrl());
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         SamlAdvancedConfiguration advancedConfiguration = samlPluginConfig.getAdvancedConfiguration();
-        if(advancedConfiguration != null && advancedConfiguration.getRandomRelayState()){
+        if (advancedConfiguration != null && advancedConfiguration.getRandomRelayState()) {
             saml2Client.setStateGenerator(new RandomValueGenerator());
         }
         saml2Client.init();
